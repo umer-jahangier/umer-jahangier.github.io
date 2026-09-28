@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { liveReady, publishWall, removeWall, subscribeWall, WALL_TTL, type LiveStroke } from "@/lib/live";
+import { liveReady, publishWall, removeWall, serverNow, subscribeWall, WALL_TTL, type LiveStroke } from "@/lib/live";
 import { markerColor, subscribePrefs } from "@/lib/prefs";
 import { sound } from "@/lib/sound";
 
@@ -61,7 +61,7 @@ export default function Wall() {
       if (e.button !== 0 || reduce) return;
       e.preventDefault();
       cv.setPointerCapture(e.pointerId);
-      drawing = { id: "local-" + Date.now(), pts: [toLocal(e)], color, t: Date.now() };
+      drawing = { id: "local-" + Date.now(), pts: [toLocal(e)], color, t: serverNow() };
       strokes.set(drawing.id, drawing);
       dirty = true;
     };
@@ -80,6 +80,7 @@ export default function Wall() {
       drawing = null;
       if (s.pts.length < 2 || Date.now() - lastPublish < MIN_GAP_MS) return;
       lastPublish = Date.now();
+      s.t = serverNow(); // the rules judge the stroke by when it was saved, not when it was begun
       const p: number[] = [];
       s.pts.forEach((q) => p.push(+q.x.toFixed(4), +q.y.toFixed(4)));
       void publishWall({ cid: "", c: s.color, t: s.t, p }).then((id) => {
@@ -110,7 +111,7 @@ export default function Wall() {
         }
       });
       if (removedLocal) dirty = true;
-      const recent = mine.filter((m) => Date.now() - m.t < UNDO_WINDOW);
+      const recent = mine.filter((m) => serverNow() - m.t < UNDO_WINDOW);
       const last = recent[recent.length - 1];
       if (!last) {
         setNotice(removedLocal ? "" : mine.length ? "Your strokes older than a minute stay on the board for the day." : "Nothing of yours to erase yet.");
@@ -130,11 +131,13 @@ export default function Wall() {
     };
     window.addEventListener("board:clear", undo);
 
+    let alive = true;
     let unsubLive: (() => void) | undefined;
     liveReady().then(async (ok) => {
+      if (!alive) return;
       setLive(ok);
       if (!ok) return;
-      unsubLive = await subscribeWall(
+      const u = await subscribeWall(
         (s: LiveStroke) => {
           if (strokes.has(s.id)) return;
           const pts: Pt[] = [];
@@ -149,6 +152,8 @@ export default function Wall() {
           dirty = true;
         },
       );
+      if (alive) unsubLive = u;
+      else u();
     });
 
     let raf = 0;
@@ -161,7 +166,7 @@ export default function Wall() {
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
         ctx.lineWidth = Math.max(2, 0.004 * w);
-        const now = Date.now();
+        const now = serverNow();
         strokes.forEach((s, id) => {
           if (now - s.t > WALL_TTL) {
             strokes.delete(id);
@@ -187,6 +192,7 @@ export default function Wall() {
     raf = requestAnimationFrame(frame);
 
     return () => {
+      alive = false;
       cancelAnimationFrame(raf);
       ro.disconnect();
       mo.disconnect();
@@ -200,17 +206,19 @@ export default function Wall() {
     };
   }, []);
 
+  const status =
+    notice ||
+    (live === null && "Connecting to the board…") ||
+    (live === true && (count ? `${count} drawing${count === 1 ? "" : "s"} on the board right now. Each one stays 24 hours; the eraser in the toolbar takes back your last stroke for a minute.` : "The board is empty. Draw something; it stays 24 hours and everyone sees it. The eraser in the toolbar takes back your last stroke for a minute.")) ||
+    (live === false && "The shared board is not reachable right now; what you draw here stays on your screen.");
   return (
     <div data-no-draw>
-      <div ref={box} className="panel relative w-full aspect-[16/9] overflow-hidden rounded-[8px]" style={{ touchAction: "none" }}>
+      <p className="mb-3 text-sm text-ink-2" role="status" aria-live="polite">
+        {status}
+      </p>
+      <div ref={box} className="panel wall-frame relative overflow-hidden rounded-[8px]" style={{ touchAction: "none" }}>
         <canvas ref={canvas} className="absolute inset-0 w-full h-full cursor-crosshair" aria-label="The open board. Draw with the mouse or a finger; drawings stay for 24 hours and everyone sees them." role="img" />
       </div>
-      <p className="mt-3 text-sm text-ink-2" role="status" aria-live="polite">
-        {notice ||
-          (live === null && "Connecting to the board…") ||
-          (live === true && (count ? `${count} drawing${count === 1 ? "" : "s"} on the board right now. Each one stays 24 hours; the eraser in the toolbar takes back your last stroke for a minute.` : "The board is empty. Draw something; it stays 24 hours and everyone sees it. The eraser in the toolbar takes back your last stroke for a minute.")) ||
-          (live === false && "The shared board is not reachable right now; what you draw here stays on your screen.")}
-      </p>
     </div>
   );
 }

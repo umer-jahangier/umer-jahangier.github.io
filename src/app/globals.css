@@ -171,7 +171,7 @@ html { scrollbar-color: var(--line) var(--board); }
   display: inline-flex;
   flex-direction: column;
   gap: 0.35rem;
-  width: 17.5rem;
+  width: 16rem;
   max-width: 100%;
   padding: 1rem 1.1rem 1.05rem;
   background: var(--paper);
@@ -335,10 +335,69 @@ html { scrollbar-color: var(--line) var(--board); }
   .ruled-cols > * + * { border-top: 1.5px solid var(--line); }
 }
 
+/* A note's own action, set in the caption line */
+.note-wide { width: 100%; }
+.note-act {
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-left: 0.6em;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+  transition: color 160ms var(--ease-out), text-decoration-color 160ms var(--ease-out);
+}
+.note-act:hover, .note-act:focus-visible { color: var(--ink); text-decoration-color: currentColor; }
+.note-act[data-confirm] { color: var(--rose-ink, #b8244a); text-decoration-color: currentColor; }
+.note-act[aria-disabled="true"] { opacity: 0.6; cursor: progress; }
+
+/* The contact sheet: a pinned panel over a dimmed board */
+.sheet {
+  border: 0;
+  padding: 0;
+  margin: auto; /* the preflight zeroes every margin, which would pin the dialog to the corner */
+  background: transparent;
+  max-width: min(92vw, 34rem);
+  width: 100%;
+  max-height: 90dvh;
+  overflow: auto;
+}
+.sheet::backdrop { background: rgb(17 24 39 / 0.45); backdrop-filter: blur(2px); }
+:root[data-theme="night"] .sheet::backdrop { background: rgb(0 0 0 / 0.6); }
+.sheet-body {
+  position: relative;
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1.5px var(--ink), var(--shadow);
+  padding: clamp(20px, 3vw, 32px);
+}
+.sheet-close { position: absolute; top: 12px; right: 12px; }
+.sheet[open] { animation: sheet-in 260ms var(--ease-out); }
+@keyframes sheet-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+/* The open board keeps 16:9 but never exceeds the viewport */
+.wall-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: calc(100svh - 340px);
+  max-width: calc((100svh - 340px) * 16 / 9);
+  margin-inline: auto;
+}
+
 /* ── Layout ─────────────────────────────────────────────────────── */
 .gutter { padding-inline: var(--gutter); }
 .measured { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(12px, 1.5vw, 24px); }
 .act { min-height: 100dvh; display: grid; align-content: center; padding-block: clamp(64px, 10vh, 120px); }
+/* The intro starts under the nav instead of centring; its padding lives here because these
+   unlayered rules outrank Tailwind's layered utilities, so a pt-* on the section never applied. */
+.act-intro { min-height: 100dvh; display: grid; align-content: start; padding-block: clamp(112px, 16vh, 168px) clamp(40px, 6vh, 80px); }
 
 /* Ghosted vs current parts in assembly steps */
 .part { transition: opacity 320ms var(--ease-out), color 320ms var(--ease-out); }
@@ -357,6 +416,7 @@ html { scrollbar-color: var(--line) var(--board); }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sheet[open] { animation: none; }
   .draw { stroke-dashoffset: 0; }
   .note, .btn, .tool, .ink-link, .peek, .part { transition: none; }
   .marker-cursor { display: none; }

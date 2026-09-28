@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 export default function BoardPage() {
   return (
     <>
-      <section className="gutter pt-28 md:pt-36 pb-[4vh]">
-        <h1 className="display text-[clamp(2.8rem,7vw,7rem)] max-w-[12ch]">The open board.</h1>
-        <p className="lead mt-6 max-w-[46ch]">Everywhere else on this site your marker fades in seconds. Here it stays for a day, and whoever visits sees what you drew. Pick a colour from the toolbar, then draw.</p>
+      <section className="gutter pt-24 md:pt-28 pb-5">
+        <h1 className="display text-[clamp(2.4rem,5vw,4.4rem)] max-w-[12ch]">The open board.</h1>
+        <p className="lead mt-3 max-w-[52ch] text-[1.1rem]">Everywhere else your marker fades in seconds. Here it stays for a day, and whoever visits sees it. Pick a colour from the toolbar, then draw.</p>
       </section>
       <section className="gutter pb-[6vh]" aria-label="Shared drawing board">
         <Wall />

@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { loadPrefs, markerColor, subscribePrefs } from "@/lib/prefs";
 import { sound } from "@/lib/sound";
-import { clientId, publishStroke, STROKE_FADE, STROKE_TTL, subscribeStrokes } from "@/lib/live";
+import { clientId, publishStroke, serverNow, STROKE_FADE, STROKE_TTL, subscribeStrokes } from "@/lib/live";
 
 type Pt = { x: number; y: number; t: number; w: number };
 type Stroke = { pts: Pt[]; color: string; born: number; done: boolean; remote?: boolean };
@@ -51,14 +51,16 @@ export default function Board() {
     const mo = new MutationObserver(() => (color = markerColor()));
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-marker"] });
 
-    // Other visitors' strokes arrive normalised; scale them to this screen.
+    // Other visitors' strokes arrive in units of the writer's viewport width on both
+    // axes, so a circle stays a circle on a screen of another shape.
+    let alive = true;
     let unsubLive: (() => void) | undefined;
     if (!reduce) {
       subscribeStrokes((s) => {
         const pts: Pt[] = [];
-        for (let i = 0; i + 1 < s.p.length; i += 2) pts.push({ x: s.p[i] * window.innerWidth, y: s.p[i + 1] * window.innerHeight, t: s.t, w: 0.6 });
+        for (let i = 0; i + 1 < s.p.length; i += 2) pts.push({ x: s.p[i] * window.innerWidth, y: s.p[i + 1] * window.innerWidth, t: s.t, w: 0.6 });
         strokes.push({ pts, color: s.c, born: s.t, done: true, remote: true });
-      }).then((u) => (unsubLive = u));
+      }).then((u) => (alive ? (unsubLive = u) : u()));
     }
 
     const qx = gsap.quickTo(cur, "x", { duration: 0.16, ease: "power3.out" });
@@ -75,7 +77,7 @@ export default function Board() {
         const speed = Math.min(d / dt, 3);
         p.w = speed;
         if (drawing) {
-          drawing.pts.push(p);
+          if (drawing.pts.length < 2400) drawing.pts.push(p);
           sound.squeak(Math.min(speed / 2.2, 1));
         } else if (fine && !reduce) {
           trail.push(p);
@@ -94,7 +96,7 @@ export default function Board() {
       if (e.button !== 0 || !t || t.closest(INTERACTIVE) || t.closest("[data-no-draw]")) return;
       if (reduce) return;
       e.preventDefault();
-      drawing = { pts: [{ x: e.clientX, y: e.clientY, t: performance.now(), w: 0 }], color, born: Date.now(), done: false };
+      drawing = { pts: [{ x: e.clientX, y: e.clientY, t: performance.now(), w: 0 }], color, born: serverNow(), done: false };
       strokes.push(drawing);
       qs(0.6);
     };
@@ -102,14 +104,14 @@ export default function Board() {
       if (drawing) {
         const s = drawing;
         s.done = true;
-        s.born = Date.now();
+        s.born = serverNow();
         drawing = null;
         if (s.pts.length > 3) {
-          // Share it: every second point, normalised to the viewport, at most 400 points.
+          // Share it: at most 400 points, in units of this viewport's width.
           const step = Math.max(1, Math.ceil(s.pts.length / 400));
           const p: number[] = [];
-          for (let i = 0; i < s.pts.length; i += step) p.push(+(s.pts[i].x / window.innerWidth).toFixed(4), +(s.pts[i].y / window.innerHeight).toFixed(4));
-          void publishStroke({ cid: clientId, c: s.color, t: Date.now(), p });
+          for (let i = 0; i < s.pts.length; i += step) p.push(+(s.pts[i].x / window.innerWidth).toFixed(4), +(s.pts[i].y / window.innerWidth).toFixed(4));
+          void publishStroke({ cid: clientId, c: s.color, t: s.born, p });
         }
       }
       qs(1);
@@ -122,6 +124,9 @@ export default function Board() {
     window.addEventListener("pointerdown", onDown);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointercancel", onUp);
+    // A stroke whose release happens outside the window still ends.
+    window.addEventListener("blur", onUp);
+    document.documentElement.addEventListener("pointerleave", onUp);
     window.addEventListener("board:clear", clear);
 
     const line = (pts: Pt[], alpha: number, width: number, col: string) => {
@@ -144,7 +149,7 @@ export default function Board() {
     let raf = 0;
     const frame = () => {
       const now = performance.now();
-      const wall = Date.now();
+      const wall = serverNow();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, cv.width, cv.height);
       while (trail.length && now - trail[0].t > 350) trail.shift();
@@ -179,7 +184,10 @@ export default function Board() {
       window.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("blur", onUp);
+      document.documentElement.removeEventListener("pointerleave", onUp);
       window.removeEventListener("board:clear", clear);
+      alive = false;
       unsub();
       unsubLive?.();
       mo.disconnect();

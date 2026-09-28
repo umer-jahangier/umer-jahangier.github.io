@@ -65,15 +65,15 @@ export default function Intro() {
     { scope: root },
   );
   return (
-    <section ref={root} className="act gutter pt-36 md:pt-44" aria-labelledby="intro-heading">
+    <section ref={root} className="act-intro gutter" aria-labelledby="intro-heading">
       <div className="measured gap-y-10 items-center">
         <div className="col-span-12 lg:col-span-5">
-          <h1 id="intro-heading" className="in display text-[clamp(2.75rem,6.4vw,6.2rem)]">
+          <h1 id="intro-heading" className="in display text-[clamp(2.75rem,6vw,5.6rem)]">
             {intro.headline}
           </h1>
-          <p className="in lead mt-6 max-w-[38ch]">{intro.line}</p>
-          <p className="in mt-4 text-ink-2 max-w-[38ch]">{intro.since}</p>
-          <div className="in mt-9 flex flex-wrap gap-x-5 gap-y-6 items-start" data-no-draw>
+          <p className="in lead mt-5 max-w-[38ch]">{intro.line}</p>
+          <p className="in mt-3 text-ink-2 max-w-[38ch]">{intro.since}</p>
+          <div className="in mt-8 flex flex-wrap gap-x-5 gap-y-6 items-start" data-no-draw>
             <div className="flex flex-col gap-3 items-start">
               <Note href={cta.hire.href} title={cta.hire.title} sub={cta.hire.sub} />
               <a href={site.cv} download className="ink-link ml-1 inline-flex items-center gap-1.5 text-sm font-semibold">
@@ -82,7 +82,7 @@ export default function Intro() {
             </div>
             <Note href={cta.build.href} title={cta.build.title} sub={cta.build.sub} rose />
           </div>
-          <div className="in mt-6 flex flex-wrap items-center gap-6" data-no-draw>
+          <div className="in mt-5 flex flex-wrap items-center gap-6" data-no-draw>
             <span className="inline-flex items-center gap-2 text-sm text-ink-2" aria-hidden>
               <svg width="34" height="22" viewBox="0 0 34 22" className="text-marker">
                 <path className="stroke" d="M3 4 c 10 -2, 22 3, 27 14 M25 13 l 5 6 l 3 -7" />

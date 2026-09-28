@@ -6,6 +6,7 @@ import Toolbar from "@/components/board/Toolbar";
 import SmoothScroll from "@/components/motion/SmoothScroll";
 import { EraserProvider } from "@/components/motion/Eraser";
 import Nav from "@/components/ui/Nav";
+import { ContactProvider } from "@/components/ui/ContactSheet";
 import { site } from "@/content/profile";
 import { themeBootScript } from "@/lib/prefs";
 
@@ -69,11 +70,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Board />
         <SmoothScroll />
         <EraserProvider>
-          <Nav />
-          <Toolbar />
-          <main id="main" className="relative z-10">
-            {children}
-          </main>
+          <ContactProvider>
+            <Nav />
+            <Toolbar />
+            <main id="main" className="relative z-10">
+              {children}
+            </main>
+          </ContactProvider>
         </EraserProvider>
       </body>
     </html>

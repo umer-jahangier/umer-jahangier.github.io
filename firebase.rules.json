@@ -2,27 +2,59 @@
   "rules": {
     "strokes": {
       ".read": true,
+      ".indexOn": ["t"],
       "$id": {
         ".write": "!data.exists() || (newData.val() == null && data.child('t').val() < now - 20000)",
-        ".validate": "newData.hasChildren(['t', 'c', 'p', 'cid']) && newData.child('t').isNumber() && newData.child('t').val() < now + 10000 && newData.child('c').isString() && newData.child('c').val().length < 40 && newData.child('cid').isString() && newData.child('cid').val().length < 24",
-        "p": { "$i": { ".validate": "newData.isNumber() && $i.matches(/^[0-9]{1,3}$/)" } }
+        ".validate": "$id.matches(/^-[A-Za-z0-9_-]{19}$/) && newData.hasChildren(['t', 'c', 'p', 'cid'])",
+        "t": { ".validate": "newData.isNumber() && newData.val() > now - 30000 && newData.val() < now + 10000" },
+        "c": { ".validate": "newData.isString() && newData.val().length < 40" },
+        "cid": { ".validate": "newData.isString() && newData.val().length < 24" },
+        "p": {
+          ".validate": "newData.hasChildren()",
+          "$i": { ".validate": "$i.matches(/^(0|[1-9][0-9]{0,2})$/) && newData.isNumber() && newData.val() >= -1 && newData.val() <= 4" }
+        },
+        "$other": { ".validate": false }
       }
     },
     "wall": {
       ".read": true,
+      ".indexOn": ["t"],
       "$id": {
         ".write": "!data.exists() || (newData.val() == null && (data.child('t').val() < now - 86400000 || data.child('t').val() > now - 60000))",
-        ".validate": "newData.hasChildren(['t', 'c', 'p']) && newData.child('t').isNumber() && newData.child('t').val() < now + 10000 && newData.child('t').val() > now - 600000 && newData.child('c').isString() && newData.child('c').val().length < 40",
-        "p": { "$i": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1 && $i.matches(/^[0-9]{1,3}$/)" } }
+        ".validate": "$id.matches(/^-[A-Za-z0-9_-]{19}$/) && newData.hasChildren(['t', 'c', 'p'])",
+        "t": { ".validate": "newData.isNumber() && newData.val() > now - 600000 && newData.val() < now + 10000" },
+        "c": { ".validate": "newData.isString() && newData.val().length < 40" },
+        "p": {
+          ".validate": "newData.hasChildren()",
+          "$i": { ".validate": "$i.matches(/^(0|[1-9][0-9]{0,2})$/) && newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" }
+        },
+        "$other": { ".validate": false }
       }
     },
     "notes": {
       ".read": true,
+      ".indexOn": ["t"],
       "$id": {
-        ".write": "!data.exists()",
-        ".validate": "newData.hasChildren(['m', 't']) && newData.child('m').isString() && newData.child('m').val().length > 0 && newData.child('m').val().length <= 240 && (!newData.hasChild('n') || (newData.child('n').isString() && newData.child('n').val().length <= 40)) && (!newData.hasChild('c') || newData.child('c').isString())"
+        ".write": "!data.exists() || (newData.val() == null && root.child('noteKeys').child($id).exists() && root.child('noteProofs').child($id).exists() && root.child('noteProofs').child($id).val() == root.child('noteKeys').child($id).val())",
+        ".validate": "$id.matches(/^-[A-Za-z0-9_-]{19}$/) && newData.hasChildren(['m', 't'])",
+        "m": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 240" },
+        "n": { ".validate": "newData.isString() && newData.val().length <= 40" },
+        "t": { ".validate": "newData.isNumber() && newData.val() > now - 15000 && newData.val() < now + 15000" },
+        "c": { ".validate": "newData.isString() && newData.val().matches(/^(marker|rose|ink)$/)" },
+        "$other": { ".validate": false }
       }
     },
-    "$other": { ".read": false, ".write": false }
+    "noteKeys": {
+      ".read": false,
+      "$id": {
+        ".write": "(!data.exists() && newData.isString() && newData.val().matches(/^[a-f0-9]{32}$/)) || (newData.val() == null && !root.child('notes').child($id).exists())"
+      }
+    },
+    "noteProofs": {
+      ".read": false,
+      "$id": {
+        ".write": "(newData.isString() && root.child('noteKeys').child($id).exists() && newData.val() == root.child('noteKeys').child($id).val()) || (newData.val() == null && !root.child('notes').child($id).exists())"
+      }
+    }
   }
 }

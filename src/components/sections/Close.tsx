@@ -1,6 +1,6 @@
 import Note from "@/components/board/Note";
 import { TransitionLink } from "@/components/motion/Eraser";
-import { IconDownload, IconGithub, IconLinkedin } from "@/components/ui/Icons";
+import { IconBoard, IconDownload, IconGithub, IconLinkedin } from "@/components/ui/Icons";
 import { cta, site } from "@/content/profile";
 
 /** Every page ends here: two notes, one for each kind of visitor. */
@@ -28,7 +28,7 @@ export default function Close({ heading = "Let's put something on the board." }:
           <p className="mt-1">{site.openTo}</p>
           <div className="mt-5 flex flex-wrap gap-5">
             <TransitionLink href="/board/" className="ink-link inline-flex items-center gap-2">
-              The open board
+              <IconBoard /> The open board
             </TransitionLink>
             <a href={site.github} className="ink-link inline-flex items-center gap-2" target="_blank" rel="noopener noreferrer">
               <IconGithub /> GitHub

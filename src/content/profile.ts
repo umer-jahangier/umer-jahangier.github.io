@@ -15,8 +15,8 @@ export const site = {
 
 /** The two actions, equal weight. */
 export const cta = {
-  hire: { href: `mailto:${site.email}?subject=${encodeURIComponent("Role: let's talk")}`, title: "Hire me", sub: "Email me, or take the CV." },
-  build: { href: `mailto:${site.email}?subject=${encodeURIComponent("Project: what I want built")}&body=${encodeURIComponent("Hi Umer,\n\nWhat I want to build:\n\nWho it is for:\n\nWhen I need it:\n")}`, title: "Build with me", sub: "An AI agent, a SaaS, a tool. Tell me what you need." },
+  hire: { href: `mailto:${site.email}?subject=${encodeURIComponent("Role: let's talk")}`, title: "Hire me", sub: "For recruiters and engineering leads." },
+  build: { href: `mailto:${site.email}?subject=${encodeURIComponent("Project: what I want built")}&body=${encodeURIComponent("Hi Umer,\n\nWhat I want to build:\n\nWho it is for:\n\nWhen I need it:\n")}`, title: "Build with me", sub: "For founders who need a product built." },
 };
 
 export const intro = {

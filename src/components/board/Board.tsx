@@ -1,18 +1,20 @@
 "use client";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { getPrefs, loadPrefs, markerColor, subscribePrefs } from "@/lib/prefs";
+import { loadPrefs, markerColor, subscribePrefs } from "@/lib/prefs";
 import { sound } from "@/lib/sound";
+import { clientId, publishStroke, STROKE_FADE, STROKE_TTL, subscribeStrokes } from "@/lib/live";
 
 type Pt = { x: number; y: number; t: number; w: number };
-type Stroke = { pts: Pt[]; color: string; born: number; done: boolean };
+type Stroke = { pts: Pt[]; color: string; born: number; done: boolean; remote?: boolean };
 
 const INTERACTIVE = "a, button, input, textarea, select, label, [role=button], [role=slider], summary";
 
 /**
  * The board sits behind everything: a dot grid, and a canvas where the visitor's
  * cursor is a marker. Moving leaves a fading trail; press and drag draws a stroke
- * that stays for a few seconds, then fades like a wiped board.
+ * that stays for a while, then fades like a wiped board. When the shared board is
+ * configured, strokes are published and other visitors' strokes appear too.
  */
 export default function Board() {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -46,9 +48,18 @@ export default function Board() {
     const unsub = subscribePrefs(() => {
       color = markerColor();
     });
-    // Theme changes re-resolve the colour too (the marker token differs per theme).
     const mo = new MutationObserver(() => (color = markerColor()));
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-marker"] });
+
+    // Other visitors' strokes arrive normalised; scale them to this screen.
+    let unsubLive: (() => void) | undefined;
+    if (!reduce) {
+      subscribeStrokes((s) => {
+        const pts: Pt[] = [];
+        for (let i = 0; i + 1 < s.p.length; i += 2) pts.push({ x: s.p[i] * window.innerWidth, y: s.p[i + 1] * window.innerHeight, t: s.t, w: 0.6 });
+        strokes.push({ pts, color: s.c, born: s.t, done: true, remote: true });
+      }).then((u) => (unsubLive = u));
+    }
 
     const qx = gsap.quickTo(cur, "x", { duration: 0.16, ease: "power3.out" });
     const qy = gsap.quickTo(cur, "y", { duration: 0.16, ease: "power3.out" });
@@ -61,7 +72,7 @@ export default function Board() {
       if (last) {
         const d = Math.hypot(p.x - last.x, p.y - last.y);
         const dt = Math.max(now - last.t, 1);
-        const speed = Math.min(d / dt, 3); // px per ms
+        const speed = Math.min(d / dt, 3);
         p.w = speed;
         if (drawing) {
           drawing.pts.push(p);
@@ -83,20 +94,28 @@ export default function Board() {
       if (e.button !== 0 || !t || t.closest(INTERACTIVE) || t.closest("[data-no-draw]")) return;
       if (reduce) return;
       e.preventDefault();
-      drawing = { pts: [{ x: e.clientX, y: e.clientY, t: performance.now(), w: 0 }], color, born: performance.now(), done: false };
+      drawing = { pts: [{ x: e.clientX, y: e.clientY, t: performance.now(), w: 0 }], color, born: Date.now(), done: false };
       strokes.push(drawing);
       qs(0.6);
     };
     const onUp = () => {
       if (drawing) {
-        drawing.done = true;
-        drawing.born = performance.now();
+        const s = drawing;
+        s.done = true;
+        s.born = Date.now();
         drawing = null;
+        if (s.pts.length > 3) {
+          // Share it: every second point, normalised to the viewport, at most 400 points.
+          const step = Math.max(1, Math.ceil(s.pts.length / 400));
+          const p: number[] = [];
+          for (let i = 0; i < s.pts.length; i += step) p.push(+(s.pts[i].x / window.innerWidth).toFixed(4), +(s.pts[i].y / window.innerHeight).toFixed(4));
+          void publishStroke({ cid: clientId, c: s.color, t: Date.now(), p });
+        }
       }
       qs(1);
     };
     const clear = () => {
-      strokes.length = 0;
+      for (let i = strokes.length - 1; i >= 0; i--) if (!strokes[i].remote) strokes.splice(i, 1);
       trail.length = 0;
     };
     window.addEventListener("pointermove", onMove, { passive: true });
@@ -125,9 +144,9 @@ export default function Board() {
     let raf = 0;
     const frame = () => {
       const now = performance.now();
+      const wall = Date.now();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, cv.width, cv.height);
-      // Trail: the last 350 ms of movement, fading.
       while (trail.length && now - trail[0].t > 350) trail.shift();
       if (trail.length > 2) {
         for (let i = 1; i < trail.length; i++) {
@@ -135,13 +154,12 @@ export default function Board() {
           line([trail[i - 1], trail[i], trail[i]], a * 0.45, 4, color);
         }
       }
-      // Strokes: hold 3.2 s after the pen lifts, then fade over 1.4 s.
       for (let i = strokes.length - 1; i >= 0; i--) {
         const s = strokes[i];
-        let a = 0.95;
+        let a = s.remote ? 0.8 : 0.95;
         if (s.done) {
-          const age = now - s.born;
-          if (age > 3200) a = 0.95 * Math.max(0, 1 - (age - 3200) / 1400);
+          const age = wall - s.born;
+          if (age > STROKE_TTL) a *= Math.max(0, 1 - (age - STROKE_TTL) / STROKE_FADE);
           if (a <= 0) {
             strokes.splice(i, 1);
             continue;
@@ -163,6 +181,7 @@ export default function Board() {
       window.removeEventListener("pointercancel", onUp);
       window.removeEventListener("board:clear", clear);
       unsub();
+      unsubLive?.();
       mo.disconnect();
     };
   }, []);
@@ -180,7 +199,6 @@ export default function Board() {
       />
       <canvas ref={canvas} aria-hidden className="fixed inset-0 z-[5] pointer-events-none" />
       <div ref={cursor} aria-hidden className="marker-cursor" />
-      {/* The marker texture filter, shared by every sketch on the page */}
       <svg width="0" height="0" aria-hidden style={{ position: "absolute" }}>
         <defs>
           <filter id="marker" x="-5%" y="-5%" width="110%" height="110%">

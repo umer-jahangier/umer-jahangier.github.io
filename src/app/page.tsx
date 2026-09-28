@@ -2,6 +2,7 @@ import Intro from "@/components/sections/Intro";
 import Tally from "@/components/sections/Tally";
 import Act from "@/components/sections/Act";
 import Close from "@/components/sections/Close";
+import Guestbook from "@/components/sections/Guestbook";
 import Note from "@/components/board/Note";
 import { TransitionLink } from "@/components/motion/Eraser";
 import { IconNext } from "@/components/ui/Icons";
@@ -26,13 +27,13 @@ export default function Home() {
         <h2 id="more-heading" className="display text-[clamp(2.2rem,5vw,4.6rem)] max-w-[16ch]">
           Also on the board.
         </h2>
-        <ul className="measured mt-8 gap-y-5">
+        <ul className="ruled mt-8">
           {rest.map((p) => (
-            <li key={p.slug} className="col-span-12 md:col-span-6 lg:col-span-3">
-              <TransitionLink href={`/work/${p.slug}/`} className="peek panel block h-full p-5 group">
-                <h3 className="display-md text-[1.35rem]">{p.name}</h3>
-                <p className="mt-2 text-sm text-ink-2 leading-[1.5]">{p.kicker}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-marker">
+            <li key={p.slug} className="!p-0">
+              <TransitionLink href={`/work/${p.slug}/`} className="group measured items-baseline gap-y-2 px-5 py-5 hover:bg-[var(--marker-soft)] transition-colors">
+                <h3 className="display-md text-[1.35rem] col-span-12 md:col-span-4">{p.name}</h3>
+                <p className="text-sm text-ink-2 leading-[1.5] col-span-12 md:col-span-6">{p.kicker}</p>
+                <span className="col-span-12 md:col-span-2 md:justify-self-end inline-flex items-center gap-1.5 text-sm font-semibold text-marker group-hover:translate-x-1 transition-transform">
                   How it is built <IconNext size={16} />
                 </span>
               </TransitionLink>
@@ -56,14 +57,14 @@ export default function Home() {
             <Note href="/services/" title="Build with me" sub="How an engagement starts, and what you get." rose tilt={1.2} />
           </div>
         </div>
-        <ol className="mt-10 grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <ul className="ruled ruled-cols mt-10 lg:grid-cols-5">
           {services.map((s) => (
-            <li key={s.id} className="panel p-5">
+            <li key={s.id}>
               <h3 className="display-md text-[1.2rem]">{s.title}</h3>
               <p className="mt-2 text-sm text-ink-2 leading-[1.5]">{s.what}</p>
             </li>
           ))}
-        </ol>
+        </ul>
       </section>
 
       <section className="gutter py-[10vh]" aria-labelledby="journey-heading">
@@ -86,6 +87,7 @@ export default function Home() {
         </TransitionLink>
       </section>
 
+      <Guestbook />
       <Close />
     </>
   );

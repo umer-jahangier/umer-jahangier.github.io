@@ -171,7 +171,8 @@ html { scrollbar-color: var(--line) var(--board); }
   display: inline-flex;
   flex-direction: column;
   gap: 0.35rem;
-  min-width: 12rem;
+  width: 17.5rem;
+  max-width: 100%;
   padding: 1rem 1.1rem 1.05rem;
   background: var(--paper);
   color: var(--paper-ink);
@@ -295,10 +296,23 @@ html { scrollbar-color: var(--line) var(--board); }
 .nav-scrim::before {
   content: "";
   position: absolute;
-  inset: 0 0 -28px 0;
+  inset: 0 0 -26px 0;
   z-index: -1;
-  background: linear-gradient(to bottom, var(--board) 0%, color-mix(in oklab, var(--board) 85%, transparent) 60%, transparent 100%);
+  background: linear-gradient(to bottom, var(--board) 0%, var(--board) 72%, transparent 100%);
   pointer-events: none;
+}
+
+/* A ruled frame: one drawn box, marker-ruled rows, no cards */
+.ruled { border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--ink); }
+.ruled > * + * { border-top: 1.5px solid var(--line); }
+.ruled > * { padding: 1.1rem 1.25rem; }
+.ruled-cols { display: grid; }
+.ruled-cols > * { padding: 1.1rem 1.25rem; }
+@media (min-width: 1024px) {
+  .ruled-cols > * + * { border-left: 1.5px solid var(--line); }
+}
+@media (max-width: 1023px) {
+  .ruled-cols > * + * { border-top: 1.5px solid var(--line); }
 }
 
 /* ── Layout ─────────────────────────────────────────────────────── */
@@ -317,6 +331,10 @@ html { scrollbar-color: var(--line) var(--board); }
 .peek .peek-strip { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 420ms var(--ease-out), opacity 300ms; opacity: 0; }
 .peek .peek-strip > * { min-height: 0; overflow: hidden; }
 .peek:hover .peek-strip, .peek:focus-within .peek-strip { grid-template-rows: 1fr; opacity: 1; }
+
+@media (max-width: 639px) {
+  .sketch-sub { display: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .draw { stroke-dashoffset: 0; }

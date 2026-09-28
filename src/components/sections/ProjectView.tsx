@@ -49,11 +49,10 @@ export default function ProjectView({ p, next }: { p: Project; next: Project }) 
 
   return (
     <article ref={root} className="gutter pt-28 md:pt-36">
-      <p className="pv-in hand text-[1.2rem]">{p.role}</p>
-      <h1 className="pv-in display text-[clamp(2.8rem,8vw,8.5rem)] mt-2 max-w-[12ch]">{p.name}</h1>
+      <h1 className="pv-in display text-[clamp(2.8rem,8vw,8.5rem)] max-w-[12ch]">{p.name}</h1>
       <p className="pv-in lead mt-6 max-w-[54ch]">{p.kicker}</p>
       <p className="pv-in mt-3 text-ink-2">
-        {p.org} · {p.period}
+        {p.role} · {p.org} · {p.period}
         {p.url && (
           <>
             {" · "}

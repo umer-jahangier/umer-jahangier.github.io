@@ -10,14 +10,14 @@ export default function Close({ heading = "Let's put something on the board." }:
         {heading}
       </h2>
       <div className="measured mt-10 gap-y-10">
-        <div className="col-span-12 lg:col-span-7 flex flex-wrap gap-6 items-start" data-no-draw>
-          <div className="flex flex-col gap-3 items-start">
-            <Note href={cta.hire.href} title={cta.hire.title} sub="For recruiters and engineering leads. Email me, or take the CV." tilt={-1.5} />
-            <a href={site.cv} download className="ink-link ml-1 inline-flex items-center gap-1.5 text-sm font-semibold">
-              <IconDownload size={16} /> Download the CV
-            </a>
+        <div className="col-span-12 lg:col-span-7" data-no-draw>
+          <div className="flex flex-wrap gap-6 items-start">
+            <Note href={cta.hire.href} title={cta.hire.title} sub={cta.hire.sub} tilt={-1.5} />
+            <Note href={cta.build.href} title={cta.build.title} sub={cta.build.sub} rose tilt={1.6} />
           </div>
-          <Note href={cta.build.href} title={cta.build.title} sub="For founders and teams. Tell me what you want built and when." rose tilt={1.6} />
+          <a href={site.cv} download className="ink-link mt-5 inline-flex items-center gap-1.5 text-sm font-semibold">
+            <IconDownload size={16} /> Download the CV
+          </a>
         </div>
         <div className="col-span-12 lg:col-span-5 text-ink-2 text-[0.9375rem] leading-[1.55]">
           <a href={`mailto:${site.email}`} className="ink-link text-ink text-[1.25rem] font-semibold">

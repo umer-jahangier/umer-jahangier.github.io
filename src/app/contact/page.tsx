@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Close from "@/components/sections/Close";
+import Guestbook from "@/components/sections/Guestbook";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -19,6 +20,7 @@ export default function ContactPage() {
           </p>
         </div>
       </section>
+      <Guestbook />
       <Close heading="Say hello." />
     </>
   );

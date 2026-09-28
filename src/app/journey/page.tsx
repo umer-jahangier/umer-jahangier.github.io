@@ -16,7 +16,6 @@ export default function JourneyPage() {
       <section className="gutter pt-28 md:pt-36">
         <div className="measured gap-y-10 items-end">
           <div className="col-span-12 lg:col-span-7">
-            <p className="hand text-[1.2rem]">Every line of the CV</p>
             <h1 className="display text-[clamp(2.8rem,7vw,7rem)] mt-2 max-w-[12ch]">The journey.</h1>
             <div className="prose-board mt-8">
               <p>
@@ -94,9 +93,9 @@ export default function JourneyPage() {
         <h2 id="skills-heading" className="display text-[clamp(2rem,4vw,3.6rem)] mb-8">
           What I work with
         </h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="ruled ruled-cols lg:grid-cols-5">
           {skills.map((g) => (
-            <div key={g.group} className="panel p-5">
+            <div key={g.group}>
               <h3 className="font-semibold mb-3">{g.group}</h3>
               <ul className="text-ink-2 text-[0.9375rem] leading-[1.65]">
                 {g.items.map((s) => (

@@ -166,7 +166,7 @@ export default function Sketch({ def, className = "", current, ghost = false, ti
               {n.label}
             </text>
             {n.sub && (
-              <text className="lbl mono" x={n.w / 2} y={n.h / 2 + 13} textAnchor="middle" dominantBaseline="middle" fontSize="10.5" fill="var(--ink-2)">
+              <text className="lbl mono sketch-sub" x={n.w / 2} y={n.h / 2 + 13} textAnchor="middle" dominantBaseline="middle" fontSize="10.5" fill="var(--ink-2)">
                 {n.sub}
               </text>
             )}

@@ -3,7 +3,7 @@ export const site = {
   handle: "umer-jahangier",
   title: "Muhammad Umer · AI Engineer & Full-Stack Software Engineer",
   description:
-    "AI and full-stack software engineer with over two years of remote work for US companies. I build LLM agents, real-time voice AI and multi-tenant SaaS end to end, from data model and API to CI/CD and production on Kubernetes.",
+    "AI and full-stack software engineer, building software since 2022 with over two years of remote work for US companies. I build LLM agents, real-time voice AI and multi-tenant SaaS end to end, from data model and API to CI/CD and production on Kubernetes, with tenant isolation that fails closed.",
   url: "https://umer-jahangier.github.io",
   email: "umer.jahangier@gmail.com",
   cv: "/cv/Muhammad_Umer_CV.pdf",
@@ -22,7 +22,7 @@ export const cta = {
 export const intro = {
   headline: "I build AI products end to end.",
   line: "LLM agents that take real actions, real-time voice AI, and the multi-tenant platforms around them, from data model and API to CI/CD and production on Kubernetes.",
-  since: "Over two years of remote work for US companies, in US hours, from Lahore.",
+  since: "Building software since 2022; over two years of it remote for US companies, in US hours, from Lahore.",
 };
 
 /** Every number here is taken from the Europass CV. */
@@ -45,11 +45,12 @@ export const timeline = [
 ];
 
 export const skills = [
-  { group: "AI & machine learning", items: ["LLM agents & tool calling", "Retrieval-augmented generation", "Vector databases (Qdrant)", "Model Context Protocol", "OpenAI, Anthropic Claude & Gemini APIs", "Voice AI: Pipecat, Deepgram, Twilio", "PyTorch, TensorFlow/Keras", "Deep RL: SAC, TD3", "Computer vision (OpenCV)"] },
+  { group: "AI & machine learning", items: ["LLM agents & tool calling", "Retrieval-augmented generation", "Vector databases (Qdrant)", "Model Context Protocol", "OpenAI, Anthropic Claude & Gemini APIs", "Per-task model routing", "Voice AI: Pipecat, Deepgram, Twilio", "PyTorch, TensorFlow/Keras", "Deep RL: SAC, TD3", "Computer vision (OpenCV)"] },
   { group: "Languages", items: ["Python", "TypeScript", "JavaScript", "Java", "C++", "C#", "Dart", "SQL"] },
   { group: "Back end & data", items: ["Node.js / Express", "Spring Boot / Spring Cloud", "FastAPI", "Flask", "REST, WebSockets, gRPC", "PostgreSQL", "MongoDB", "Redis", "RabbitMQ, BullMQ", "Prisma"] },
   { group: "Front end, mobile & desktop", items: ["React", "Next.js", "Tailwind CSS", "Flutter", "Electron"] },
-  { group: "Cloud & DevOps", items: ["Docker", "Kubernetes (k3s)", "Helm", "GitHub Actions CI/CD", "Linux servers: nginx, PM2", "OAuth 2.0 / JWT", "Open Policy Agent"] },
+  { group: "Platform & cloud", items: ["Docker", "Kubernetes (k3s)", "Helm, Argo CD, Gateway API", "GitHub Actions CI/CD", "Linux servers: nginx, PM2", "Per-tenant usage metering & cost allocation", "Runbooks & API docs teams self-serve from"] },
+  { group: "Security", items: ["Tenant isolation that fails closed", "PostgreSQL row-level security", "Open Policy Agent: Rego policies tested in CI", "OAuth 2.0 / RS256 JWT", "TOTP two-factor authentication", "TLS 1.2/1.3 & HSTS hardening"] },
 ];
 
 export const thesis = {

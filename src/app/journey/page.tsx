@@ -93,7 +93,7 @@ export default function JourneyPage() {
         <h2 id="skills-heading" className="display text-[clamp(2rem,4vw,3.6rem)] mb-8">
           What I work with
         </h2>
-        <div className="ruled ruled-cols lg:grid-cols-5">
+        <div className="ruled ruled-cols lg:grid-cols-6">
           {skills.map((g) => (
             <div key={g.group}>
               <h3 className="font-semibold mb-3">{g.group}</h3>

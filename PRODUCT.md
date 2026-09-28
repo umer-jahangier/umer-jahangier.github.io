@@ -12,8 +12,9 @@ Next.js (App Router, React 19, TypeScript, Tailwind v4) as a fully static export
 
 ## Users
 
-- Primary: recruiters and hiring managers at US and EU remote-first companies, and engineering leads who click through from LinkedIn, GitHub or a CV. They arrive with 30–90 seconds, on desktop or phone, deciding whether Umer is worth a conversation.
-- Secondary: prospective freelance clients (small businesses wanting AI or full-stack software), and professors or admissions committees for research MSc programmes in Europe (Italy, Germany, Switzerland, France).
+- Primary A: recruiters and hiring managers at US and EU remote-first companies, and engineering leads who click through from LinkedIn, GitHub or a CV. They arrive with 30–90 seconds, on desktop or phone, deciding whether Umer is worth a conversation.
+- Primary B (confirmed 2026-09-28, equal weight): clients who want a product built: AI agents, internal tools, SaaS apps, automations. Founders and operators, often non-technical, who need to see what he can build for them and how to start.
+- Secondary: professors or admissions committees for research MSc programmes in Europe (Italy, Germany, Switzerland, France).
 - Tertiary: peers in the AI and web engineering community who find the site through a post.
 
 ## Product Purpose
@@ -34,8 +35,13 @@ The mechanism a neighbouring portfolio cannot copy: real, verified production sc
 
 ## Capabilities and Constraints
 
-- Pages: home (the experience), work (project index), one page per project, about (timeline, education, thesis), contact. A CV download and email are the conversion.
-- Primary call to action (confirmed): email umer.jahangier@gmail.com and download the Industry CV PDF. No booking tool.
+- The site must represent the COMPLETE CV and journey (confirmed 2026-09-28): every role, every project (nine), education with grades, the thesis, all skill groups, languages, the award, certificates (Google Foundations of Data Science, Meta Introduction to Databases, University of Michigan Introduction to HTML5, freeCodeCamp Python for Everybody), volunteering (Helping Hands), IELTS, and the open-to-work facts. Nothing from the CV may be left out.
+- Pages: home (a complete intro, clear demonstrations of what he can build, the biggest projects with real-time graphics, and the two calls to action), work (all projects), one page per project, journey/about (the full timeline), services for clients (AI agents, SaaS, tools, automations: what he builds, how an engagement starts), contact.
+- Two calls to action of equal weight (confirmed): for recruiters, email + download the CV; for clients, "start a project" (email with a prefilled subject; no booking tool). Both must be visible from the first screen and at the close of every page.
+- Theme: a dark and a light theme, switchable by the visitor, respecting the system preference by default (confirmed).
+- Sound: optional, off by default, a single toggle; UI sounds synced to the interactions and page transitions (confirmed). Never autoplay audio.
+- Page transitions must be genuinely smooth: the next page may never appear before the transition has covered the screen (a defect in the first build).
+- Forbidden copy: self-referential filler such as "Built with Next.js, React Three Fiber, GSAP and Lenis" or "Move the cursor: the rock remembers heat" (user rejected).
 - Must be a static export (no server), fast on mid-range phones, fully keyboard-accessible, and respect prefers-reduced-motion with a complete non-3D fallback so recruiters on any device get the content.
 - SEO/AEO: every page is static HTML with real text, structured data (Person, CreativeWork), Open Graph images, sitemap and robots. Answer-engine friendly: a plain-language summary of who he is and what he built appears in the HTML, not only in WebGL.
 - Truth constraints: every number and claim comes from the verified CV. Praivox is excluded from the site. The research paper stays off until submitted; the thesis is shown. Private employer repositories are named only as products (AlphaVenue.ai, LogicOne Dialer, Elio, RestaurantOS, HRIA-DMS as "donation-management system", SocialSync, AI take-off pipeline). Never claim "4+ years" (it is "over two years"), never Next.js/React Native for Elio, never SocialSync lead, never real flight for the thesis.
@@ -46,7 +52,7 @@ The mechanism a neighbouring portfolio cannot copy: real, verified production sc
 - Name: Muhammad Umer. Handle: umer-jahangier. Headline family: "AI Engineer & Full-Stack Software Engineer".
 - Existing identity to stay coherent with, not to copy: the GitHub "Cyclorama" skyline (night navy #03040A–#2A3DE0, rose #FF7A9A, warm windows #FFC4D2 for private work, cool windows #8FA2FF for public), the LinkedIn banner and the "by the numbers" post graphic, and the MU avatar mark (`work/avatar/avatar-mark.svg`). The site may evolve this world; it must not contradict it.
 - Voice: first person, direct, specific, numbers over adjectives, no hype words. British spelling.
-- User-pinned brief (binding): the site must feel like a heavily engineered, immersive, game-like 3D experience: scroll-driven 3D, parallax, lighting that responds to the cursor (the user's image: glowing lava that lights up where the mouse hovers), surprising page transitions, and interactive components. Award-level ambition (Awwwards/FWA class). GSAP, Lenis, Motion and a Three.js stack are required.
+- User-pinned brief (binding, revised 2026-09-28 after rejecting the first "Magma Chamber" build): fresh, modern, tech-savvy, creative, attractive and beautiful; clean, classy and silky; heavily engineered and animated, with real-time graphics or interactive cards for the biggest projects; immersive 3D and scroll-driven motion are welcome where they serve clarity, never as a dark cave. Award-level ambition (Awwwards/FWA class). GSAP, Lenis, Motion and a Three.js stack are required. The rejected world (cooled black rock, magma, cursor heat) must not return.
 
 ## Evidence on Hand
 

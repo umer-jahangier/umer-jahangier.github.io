@@ -1,19 +1,17 @@
 import Close from "@/components/sections/Close";
-import { HeatHeading, Button } from "@/components/ui/Slab";
+import { TransitionLink } from "@/components/motion/Eraser";
+import { IconNext } from "@/components/ui/Icons";
 
 export default function NotFound() {
   return (
     <>
-      <section className="gutter pt-32 md:pt-40 min-h-[70dvh]">
-        <HeatHeading as="h1" className="text-[clamp(3rem,10vw,11rem)]" floor={0.25}>
-          No such chamber
-        </HeatHeading>
-        <p className="prose-chamber mt-8 text-ash max-w-[48ch]">This passage leads nowhere. The work, the timeline and the contact page are all above.</p>
-        <div className="mt-8">
-          <Button href="/" primary>
-            Back to the surface
-          </Button>
-        </div>
+      <section className="gutter pt-28 md:pt-36 min-h-[60dvh]">
+        <p className="hand text-[1.2rem]">Nothing drawn here</p>
+        <h1 className="display text-[clamp(2.8rem,7vw,7rem)] mt-2 max-w-[10ch]">Blank board.</h1>
+        <p className="lead mt-6 max-w-[40ch]">That address has nothing on it. The work, the journey and the services are a click away.</p>
+        <TransitionLink href="/" className="btn btn-marker mt-8">
+          Back to the start <IconNext />
+        </TransitionLink>
       </section>
       <Close />
     </>

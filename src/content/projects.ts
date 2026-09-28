@@ -1,16 +1,22 @@
+import type { SketchDef } from "@/components/board/Sketch";
+
+export type Step = { title: string; text: string; nodes: string[] };
 export type Project = {
   slug: string;
   name: string;
-  kicker: string; // one line, what it is
+  kicker: string;
   role: string;
   org: string;
   period: string;
   url?: string;
   featured?: boolean;
+  demo?: "tool-approval" | "dialler" | "service-map" | "drone" | "marketplace";
   numbers: { value: string; label: string }[];
   stack: string[];
   summary: string;
-  body: string[]; // paragraphs, verified against the CV
+  body: string[];
+  sketch: SketchDef;
+  steps: Step[];
 };
 
 export const projects: Project[] = [
@@ -22,19 +28,57 @@ export const projects: Project[] = [
     org: "Kindwell Solutions",
     period: "2026 – now",
     featured: true,
+    demo: "tool-approval",
     numbers: [
       { value: "104", label: "operational tools" },
       { value: "132", label: "data models" },
+      { value: "179", label: "pages" },
       { value: "1,450", label: "test files" },
     ],
-    stack: ["Express", "TypeScript", "MongoDB", "React", "Redis / BullMQ", "Qdrant", "OpenAI", "Pipecat", "Twilio", "MCP", "GitHub Actions"],
-    summary:
-      "I built the platform end to end and I run it alone: the API, the web app, the workers, the tests, the CI, and the AI layer on top.",
+    stack: ["Express", "TypeScript", "MongoDB", "React", "Redis / BullMQ", "Qdrant", "OpenAI", "Pipecat", "Deepgram", "Cartesia", "Twilio", "MCP", "OAuth", "GitHub Actions"],
+    summary: "I built the platform end to end and I run it alone: the API, the web app, the workers, the tests, the CI, and the AI layer on top.",
     body: [
       "AlphaVenue.ai is a multi-tenant platform for wedding and event venues. The Express/TypeScript API sits on 132 MongoDB data models; the React web app has 179 pages; Redis and BullMQ run the background workers; and about 1,450 automated test files run in sharded GitHub Actions CI on every change.",
-      "ELLA is the platform's LLM assistant. It calls 104 operational tools through OpenAI tool calling, and every write action waits for a human to approve it. Retrieval-augmented generation runs over each venue's own knowledge base in Qdrant, so answers are grounded in that venue's documents, not the whole tenant pool.",
+      "ELLA is the platform's LLM assistant. It calls 104 operational tools through OpenAI tool calling, and every write action waits for a human to approve it. Retrieval-augmented generation runs over each venue's own knowledge base in Qdrant, so answers are grounded in that venue's documents, never the whole tenant pool.",
       "An MCP server exposes role-scoped tools to external AI agents over OAuth, so a customer's own agents can act on the platform within the permissions of the user who authorised them.",
       "The real-time voice agent runs on Pipecat: Deepgram speech-to-text, an LLM, then Cartesia text-to-speech over Twilio, with live call monitoring. Alongside it I replaced GoHighLevel with a native omnichannel CRM for voice, SMS and email.",
+    ],
+    sketch: {
+      w: 640, h: 400,
+      nodes: [
+        { id: "web", x: 20, y: 30, w: 130, h: 54, label: "React web app", sub: "179 pages" },
+        { id: "api", x: 240, y: 30, w: 150, h: 54, label: "Express API", sub: "132 data models" },
+        { id: "db", x: 470, y: 24, w: 120, h: 66, label: "MongoDB", kind: "store" },
+        { id: "workers", x: 470, y: 130, w: 130, h: 54, label: "Workers", sub: "Redis / BullMQ" },
+        { id: "ella", x: 240, y: 150, w: 150, h: 58, label: "ELLA", sub: "104 tools" },
+        { id: "human", x: 120, y: 150, w: 60, h: 58, label: "", kind: "human" },
+        { id: "qdrant", x: 240, y: 260, w: 150, h: 54, label: "Qdrant", sub: "per-venue RAG", kind: "store" },
+        { id: "mcp", x: 20, y: 260, w: 150, h: 54, label: "MCP server", sub: "external agents" },
+        { id: "voice", x: 430, y: 260, w: 190, h: 54, label: "Voice agent", sub: "Deepgram → LLM → Cartesia" },
+        { id: "twilio", x: 470, y: 340, w: 110, h: 44, label: "Twilio", kind: "pill" },
+        { id: "ci", x: 20, y: 340, w: 170, h: 44, label: "GitHub Actions CI", sub: "~1,450 test files", kind: "pill" },
+      ],
+      edges: [
+        { from: "web", to: "api" },
+        { from: "api", to: "db" },
+        { from: "api", to: "workers" },
+        { from: "ella", to: "api", label: "tool calls" },
+        { from: "human", to: "ella", label: "approves writes" },
+        { from: "ella", to: "qdrant", label: "retrieval" },
+        { from: "mcp", to: "ella", dashed: true },
+        { from: "voice", to: "ella" },
+        { from: "twilio", to: "voice" },
+        { from: "ci", to: "api", dashed: true },
+      ],
+      notes: [{ x: 30, y: 128, text: "every write waits for a person" }],
+    },
+    steps: [
+      { title: "The platform", text: "A React app on an Express/TypeScript API over MongoDB, with Redis and BullMQ workers for everything that runs in the background.", nodes: ["web", "api", "db", "workers"] },
+      { title: "ELLA, with a person in the loop", text: "The assistant calls 104 operational tools. Reads run; writes stop at a human who approves them.", nodes: ["ella", "human", "api"] },
+      { title: "Grounded answers", text: "Retrieval over each venue's own knowledge base in Qdrant, so ELLA answers from that venue's documents.", nodes: ["ella", "qdrant"] },
+      { title: "Open to other agents", text: "An MCP server exposes role-scoped tools to external agents over OAuth.", nodes: ["mcp", "ella"] },
+      { title: "Voice, live", text: "Deepgram to an LLM to Cartesia over Twilio, monitored as it happens.", nodes: ["voice", "twilio", "ella"] },
+      { title: "Kept honest", text: "About 1,450 test files in sharded CI on every change.", nodes: ["ci", "api"] },
     ],
   },
   {
@@ -46,17 +90,46 @@ export const projects: Project[] = [
     period: "2026 – now",
     url: "https://logicone.ai",
     featured: true,
+    demo: "dialler",
     numbers: [
       { value: "429", label: "API routes, from 271" },
       { value: "96", label: "data models, from 62" },
     ],
     stack: ["Next.js", "Prisma", "PostgreSQL", "Twilio", "Pipecat", "Gemini Live", "Stripe Connect"],
-    summary:
-      "I took over as primary engineer and grew the platform's surface by more than half while shipping the features that make it an AI dialler.",
+    summary: "I took over as primary engineer and grew the platform's surface by more than half while shipping the features that make it an AI dialler.",
     body: [
       "LogicOne Dialer (logicone.ai) is Logicbuilder's AI sales-calling platform, built on Next.js, Prisma and PostgreSQL with Twilio for telephony. Since I became its primary engineer the platform has grown from 62 to 96 data models and from 271 to 429 API routes.",
       "I shipped predictive dialling, live call coaching, and voice agents built on Pipecat and Gemini Live, plus Stripe Connect billing so agencies can bill their own clients through the platform.",
       "Logicbuilder.ai and Kindwell Solutions are sister companies; I work across both, which is why the same voice-agent stack appears in AlphaVenue.ai.",
+    ],
+    sketch: {
+      w: 640, h: 360,
+      nodes: [
+        { id: "app", x: 20, y: 30, w: 140, h: 54, label: "Next.js app" },
+        { id: "api", x: 250, y: 30, w: 150, h: 54, label: "API", sub: "429 routes" },
+        { id: "db", x: 480, y: 24, w: 130, h: 66, label: "PostgreSQL", sub: "96 models · Prisma", kind: "store" },
+        { id: "dialler", x: 20, y: 170, w: 160, h: 54, label: "Predictive dialler" },
+        { id: "twilio", x: 250, y: 170, w: 150, h: 54, label: "Twilio", kind: "pill" },
+        { id: "coach", x: 480, y: 170, w: 140, h: 54, label: "Live coaching" },
+        { id: "agents", x: 250, y: 280, w: 190, h: 54, label: "Voice agents", sub: "Pipecat · Gemini Live" },
+        { id: "stripe", x: 20, y: 280, w: 160, h: 54, label: "Stripe Connect", sub: "agency billing" },
+      ],
+      edges: [
+        { from: "app", to: "api" },
+        { from: "api", to: "db" },
+        { from: "dialler", to: "twilio", label: "places calls" },
+        { from: "twilio", to: "coach", label: "live audio" },
+        { from: "agents", to: "twilio" },
+        { from: "api", to: "dialler" },
+        { from: "stripe", to: "api", dashed: true },
+      ],
+    },
+    steps: [
+      { title: "The platform", text: "Next.js on an API over PostgreSQL with Prisma; 271 routes and 62 models when I joined.", nodes: ["app", "api", "db"] },
+      { title: "Predictive dialling", text: "The dialler places calls through Twilio ahead of the reps so they are always on a live conversation.", nodes: ["dialler", "twilio", "api"] },
+      { title: "Coaching, live", text: "Call audio streams to live coaching while the conversation is happening.", nodes: ["twilio", "coach"] },
+      { title: "Voice agents", text: "Pipecat and Gemini Live agents take calls themselves.", nodes: ["agents", "twilio"] },
+      { title: "Agencies bill their clients", text: "Stripe Connect lets each agency bill through the platform.", nodes: ["stripe", "api"] },
     ],
   },
   {
@@ -67,17 +140,50 @@ export const projects: Project[] = [
     org: "Self-employed",
     period: "2026 – now",
     featured: true,
+    demo: "service-map",
     numbers: [
       { value: "15", label: "Spring Boot microservices" },
       { value: "100%", label: "policy-test coverage in CI" },
     ],
-    stack: ["Java", "Spring Boot", "Spring Cloud Gateway", "Next.js", "PostgreSQL RLS", "OPA / Rego", "RabbitMQ", "Redis", "ClickHouse", "Kubernetes (k3s)"],
-    summary:
-      "I architected the system and lead the team: point of sale, kitchen display, inventory, finance, purchasing, HR and payroll, and reporting, on infrastructure designed so a tenant can never see another tenant.",
+    stack: ["Java", "Spring Boot", "Spring Cloud Gateway", "Next.js", "PostgreSQL RLS", "OPA / Rego", "RabbitMQ", "Redis", "ClickHouse", "RS256 JWT", "TOTP", "Kubernetes (k3s)"],
+    summary: "I architected the system and lead the team: point of sale, kitchen display, inventory, finance, purchasing, HR and payroll, and reporting, on infrastructure designed so a tenant can never see another tenant.",
     body: [
       "RestaurantOS is a white-label ERP for restaurants. It runs as 15 Java/Spring Boot microservices behind Spring Cloud Gateway, with a Next.js front end, RabbitMQ with dead-letter queues, Redis and ClickHouse for reporting.",
       "Tenant isolation is enforced in the database and in policy: PostgreSQL row-level security on every tenant table, and fail-closed OPA/Rego authorisation with 100% policy-test coverage enforced in CI. Authentication is RS256 JWT with TOTP two-factor.",
       "Delivery is GitHub Actions to Kubernetes (k3s). As technical lead I own the architecture, the review bar and the security model for a team of four.",
+    ],
+    sketch: {
+      w: 640, h: 380,
+      nodes: [
+        { id: "web", x: 20, y: 30, w: 130, h: 54, label: "Next.js app" },
+        { id: "gw", x: 230, y: 30, w: 170, h: 54, label: "Spring Cloud Gateway", sub: "RS256 JWT · TOTP" },
+        { id: "opa", x: 470, y: 30, w: 150, h: 54, label: "OPA / Rego", sub: "fail closed" },
+        { id: "svc", x: 230, y: 150, w: 170, h: 60, label: "15 microservices", sub: "POS · kitchen · inventory …" },
+        { id: "pg", x: 470, y: 144, w: 150, h: 70, label: "PostgreSQL", sub: "row-level security", kind: "store" },
+        { id: "mq", x: 20, y: 150, w: 150, h: 54, label: "RabbitMQ", sub: "dead-letter queues" },
+        { id: "redis", x: 20, y: 270, w: 120, h: 44, label: "Redis", kind: "pill" },
+        { id: "ch", x: 230, y: 270, w: 170, h: 54, label: "ClickHouse", sub: "reporting", kind: "store" },
+        { id: "k8s", x: 470, y: 270, w: 150, h: 54, label: "Kubernetes (k3s)", sub: "GitHub Actions" },
+      ],
+      edges: [
+        { from: "web", to: "gw" },
+        { from: "gw", to: "opa", label: "allow?" },
+        { from: "gw", to: "svc" },
+        { from: "svc", to: "pg", label: "tenant_id" },
+        { from: "svc", to: "mq" },
+        { from: "svc", to: "ch", dashed: true },
+        { from: "redis", to: "svc", dashed: true },
+        { from: "k8s", to: "svc", dashed: true },
+      ],
+      notes: [{ x: 420, y: 110, text: "deny unless a policy says yes" }],
+    },
+    steps: [
+      { title: "One door", text: "Every request enters through Spring Cloud Gateway with RS256 JWT and TOTP two-factor.", nodes: ["web", "gw"] },
+      { title: "Policy first", text: "OPA/Rego decides before any service runs, and it fails closed: no matching policy, no access. 100% policy-test coverage in CI.", nodes: ["gw", "opa"] },
+      { title: "Fifteen services", text: "Point of sale, kitchen display, inventory, finance, purchasing, HR and payroll, reporting, and more, each its own Spring Boot service.", nodes: ["gw", "svc"] },
+      { title: "The database enforces tenancy too", text: "PostgreSQL row-level security on every tenant table, so even a bug in a service cannot leak across tenants.", nodes: ["svc", "pg"] },
+      { title: "Events, cache, analytics", text: "RabbitMQ with dead-letter queues, Redis, and ClickHouse for reporting.", nodes: ["svc", "mq", "redis", "ch"] },
+      { title: "Shipped", text: "GitHub Actions delivers to Kubernetes (k3s).", nodes: ["k8s", "svc"] },
     ],
   },
   {
@@ -89,17 +195,49 @@ export const projects: Project[] = [
     period: "2024 – 2025",
     url: "https://elio.care",
     featured: true,
+    demo: "marketplace",
     numbers: [
       { value: "32", label: "data models" },
       { value: "3", label: "languages on the site" },
+      { value: "4", label: "app roles" },
     ],
-    stack: ["Express", "TypeScript", "MongoDB", "Redis", "Socket.io", "React", "Stripe & Square", "Flutter", "nginx"],
-    summary:
-      "The API, the web app, the mobile migration and the production server: quotes, milestones, invoices, a ledger and vendor payouts, with real money moving through it.",
+    stack: ["Express", "TypeScript", "MongoDB", "Redis", "Socket.io", "React", "Stripe", "Square", "Flutter", "Tailwind CSS", "nginx"],
+    summary: "The API, the web app, the mobile migration and the production server: quotes, milestones, invoices, a ledger and vendor payouts, with real money moving through it.",
     body: [
       "Elio (elio.care) is a marketplace for construction work. I built the Express/TypeScript API on MongoDB, Redis and Socket.io with 32 data models covering projects, quotes, milestones, invoices, a ledger and vendor payouts, and the React/TypeScript web app with Stripe and Square payments.",
       "I migrated the Flutter mobile app (admin, client, contractor and vendor roles) from Firebase to the platform's JWT-authenticated REST API and prepared the iOS and Google Play releases.",
       "I also built the multilingual marketing site (React, Tailwind CSS; English, Spanish and Chinese) with automated deployment, and hardened the production server: nginx, TLS 1.2/1.3, HSTS.",
+    ],
+    sketch: {
+      w: 640, h: 360,
+      nodes: [
+        { id: "home", x: 20, y: 20, w: 120, h: 48, label: "Homeowner", kind: "pill" },
+        { id: "con", x: 20, y: 90, w: 120, h: 48, label: "Contractor", kind: "pill" },
+        { id: "ven", x: 20, y: 160, w: 120, h: 48, label: "Vendor", kind: "pill" },
+        { id: "web", x: 220, y: 30, w: 140, h: 54, label: "React web app", sub: "Stripe · Square" },
+        { id: "mobile", x: 220, y: 140, w: 140, h: 54, label: "Flutter app", sub: "4 roles" },
+        { id: "api", x: 440, y: 80, w: 170, h: 60, label: "Express API", sub: "32 models · JWT" },
+        { id: "db", x: 440, y: 200, w: 170, h: 66, label: "MongoDB · Redis", sub: "Socket.io live updates", kind: "store" },
+        { id: "money", x: 220, y: 260, w: 170, h: 54, label: "Quotes → invoices", sub: "ledger · vendor payouts" },
+        { id: "srv", x: 440, y: 300, w: 170, h: 44, label: "nginx · TLS · HSTS", kind: "pill" },
+      ],
+      edges: [
+        { from: "home", to: "web" },
+        { from: "con", to: "mobile" },
+        { from: "ven", to: "mobile" },
+        { from: "web", to: "api" },
+        { from: "mobile", to: "api", label: "off Firebase" },
+        { from: "api", to: "db" },
+        { from: "api", to: "money" },
+        { from: "srv", to: "api", dashed: true },
+      ],
+    },
+    steps: [
+      { title: "Three kinds of user", text: "Homeowners, contractors and vendors, on the web and in the Flutter app.", nodes: ["home", "con", "ven", "web", "mobile"] },
+      { title: "One API", text: "Express/TypeScript with 32 data models over MongoDB and Redis, live updates through Socket.io.", nodes: ["web", "mobile", "api", "db"] },
+      { title: "Money that adds up", text: "Quotes become milestones, invoices, a ledger and vendor payouts, paid through Stripe and Square.", nodes: ["api", "money", "web"] },
+      { title: "Off Firebase", text: "The mobile app moved to the platform's JWT-authenticated API, then to iOS and Google Play.", nodes: ["mobile", "api"] },
+      { title: "In production", text: "A hardened server: nginx, TLS 1.2/1.3, HSTS, with automated deployment of the multilingual site.", nodes: ["srv", "api"] },
     ],
   },
   {
@@ -109,16 +247,46 @@ export const projects: Project[] = [
     role: "BS thesis, team of three, grade A",
     org: "COMSATS University Islamabad",
     period: "2025 – 2026",
+    demo: "drone",
     numbers: [
-      { value: "SAC", label: "vs TD3 baseline" },
+      { value: "SAC", label: "policy, vs a TD3 baseline" },
       { value: "UE5", label: "AirSim simulation" },
     ],
     stack: ["PyTorch", "AirSim", "Unreal Engine 5", "gRPC", "Electron", "React", "FastAPI"],
-    summary:
-      "A maximum-entropy Soft Actor-Critic policy on noisy depth images, trained against a privileged critic that sees the clean state, and benchmarked against TD3.",
+    summary: "A maximum-entropy Soft Actor-Critic policy on noisy depth images, trained against a privileged critic that sees the clean state, and benchmarked against TD3.",
     body: [
       "The thesis trains vision-based quadrotor navigation through dense forest in AirSim on Unreal Engine 5. The policy is a maximum-entropy Soft Actor-Critic acting on noisy depth images; it is trained against an asymmetric privileged critic that sees clean depth and state, and benchmarked against TD3 in PyTorch. Everything is in simulation.",
       "My contributions: reward-shaping design (potential-based progress, obstacle proximity, heading and altitude terms), checkpointing and evaluation tooling, a gRPC pipeline streaming experience to a remote GPU trainer, and the ground-control desktop app (Electron, React/TypeScript, FastAPI) for live AirSim telemetry, mission control and model versioning.",
+    ],
+    sketch: {
+      w: 640, h: 360,
+      nodes: [
+        { id: "sim", x: 20, y: 30, w: 160, h: 58, label: "AirSim · UE5", sub: "dense forest" },
+        { id: "depth", x: 250, y: 30, w: 150, h: 54, label: "Depth images", sub: "noisy" },
+        { id: "policy", x: 460, y: 30, w: 160, h: 58, label: "SAC policy", sub: "max-entropy" },
+        { id: "critic", x: 460, y: 150, w: 160, h: 58, label: "Privileged critic", sub: "clean depth + state" },
+        { id: "reward", x: 250, y: 150, w: 150, h: 58, label: "Reward shaping", sub: "progress · obstacles · heading" },
+        { id: "trainer", x: 250, y: 270, w: 150, h: 54, label: "Remote GPU trainer", sub: "gRPC experience stream" },
+        { id: "gcs", x: 20, y: 270, w: 170, h: 54, label: "Ground-control app", sub: "Electron · FastAPI" },
+        { id: "td3", x: 20, y: 150, w: 160, h: 48, label: "TD3 baseline", kind: "pill" },
+      ],
+      edges: [
+        { from: "sim", to: "depth" },
+        { from: "depth", to: "policy" },
+        { from: "policy", to: "sim", label: "actions" },
+        { from: "critic", to: "policy", label: "trains" },
+        { from: "reward", to: "critic" },
+        { from: "sim", to: "trainer", dashed: true },
+        { from: "gcs", to: "sim", label: "telemetry" },
+        { from: "td3", to: "policy", dashed: true },
+      ],
+    },
+    steps: [
+      { title: "The world", text: "A dense forest in AirSim on Unreal Engine 5; the drone sees only noisy depth images.", nodes: ["sim", "depth"] },
+      { title: "The policy", text: "A maximum-entropy Soft Actor-Critic acts on those images.", nodes: ["depth", "policy", "sim"] },
+      { title: "A critic that knows more", text: "The asymmetric privileged critic sees clean depth and the true state while training, so the policy learns faster than it could alone.", nodes: ["critic", "policy", "reward"] },
+      { title: "Training at a distance", text: "Experience streams over gRPC to a remote GPU trainer; a ground-control app shows telemetry and versions the models.", nodes: ["trainer", "gcs", "sim"] },
+      { title: "Measured", text: "Benchmarked against a TD3 baseline. Grade A.", nodes: ["td3", "policy"] },
     ],
   },
   {
@@ -132,8 +300,25 @@ export const projects: Project[] = [
     numbers: [{ value: "9", label: "merged pull requests" }],
     stack: ["Kubernetes", "Helm", "Argo CD", "Gateway API", "external-dns", "cert-manager"],
     summary: "New cert-issuer, external-dns and domain-manager plugins, and custom-domain publishing for the platform.",
-    body: [
-      "Juno Innovations' Terra is an open-source plugin catalogue for Kubernetes built on Helm, Argo CD and the Gateway API. Working with them as a partner, I contributed nine merged pull requests: new cert-issuer, external-dns and domain-manager plugins, and custom-domain publishing.",
+    body: ["Juno Innovations' Terra is an open-source plugin catalogue for Kubernetes built on Helm, Argo CD and the Gateway API. Working with them as a partner, I contributed nine merged pull requests: new cert-issuer, external-dns and domain-manager plugins, and custom-domain publishing."],
+    sketch: {
+      w: 640, h: 300,
+      nodes: [
+        { id: "terra", x: 220, y: 30, w: 200, h: 58, label: "Terra catalogue", sub: "Helm · Argo CD · Gateway API" },
+        { id: "cert", x: 20, y: 170, w: 160, h: 54, label: "cert-issuer", sub: "plugin" },
+        { id: "dns", x: 240, y: 170, w: 160, h: 54, label: "external-dns", sub: "plugin" },
+        { id: "dom", x: 460, y: 170, w: 160, h: 54, label: "domain-manager", sub: "custom domains" },
+      ],
+      edges: [
+        { from: "cert", to: "terra" },
+        { from: "dns", to: "terra" },
+        { from: "dom", to: "terra" },
+      ],
+      notes: [{ x: 250, y: 260, text: "9 pull requests, all merged" }],
+    },
+    steps: [
+      { title: "The catalogue", text: "Terra packages Kubernetes capabilities as plugins on Helm, Argo CD and the Gateway API.", nodes: ["terra"] },
+      { title: "Three plugins", text: "cert-issuer, external-dns and domain-manager, plus custom-domain publishing.", nodes: ["cert", "dns", "dom", "terra"] },
     ],
   },
   {
@@ -150,6 +335,30 @@ export const projects: Project[] = [
       "Estimators spend hours reading construction drawings to count quantities. This pipeline captures the drawings with Playwright, routes each sheet type to Claude vision extraction, and presents the results in a Flask job dashboard.",
       "It is covered by 37 test modules and a golden-file regression harness, so a change to a prompt or a parser shows up as a diff against known-good take-offs before it reaches an estimator.",
     ],
+    sketch: {
+      w: 640, h: 300,
+      nodes: [
+        { id: "draw", x: 20, y: 40, w: 140, h: 54, label: "Drawings" },
+        { id: "pw", x: 230, y: 40, w: 160, h: 54, label: "Playwright capture" },
+        { id: "route", x: 460, y: 40, w: 160, h: 54, label: "Per-sheet router" },
+        { id: "vision", x: 460, y: 160, w: 160, h: 54, label: "Claude vision" },
+        { id: "dash", x: 230, y: 160, w: 160, h: 54, label: "Flask dashboard" },
+        { id: "golden", x: 20, y: 160, w: 160, h: 54, label: "Golden-file harness", sub: "37 test modules" },
+      ],
+      edges: [
+        { from: "draw", to: "pw" },
+        { from: "pw", to: "route" },
+        { from: "route", to: "vision" },
+        { from: "vision", to: "dash", label: "quantities" },
+        { from: "golden", to: "vision", dashed: true },
+      ],
+    },
+    steps: [
+      { title: "Capture", text: "Playwright captures every drawing sheet.", nodes: ["draw", "pw"] },
+      { title: "Route and read", text: "Each sheet type goes to the right Claude vision extraction.", nodes: ["route", "vision"] },
+      { title: "Review", text: "Estimators review quantities in a Flask dashboard.", nodes: ["vision", "dash"] },
+      { title: "Never regress", text: "A golden-file harness diffs every change against known-good take-offs.", nodes: ["golden", "vision"] },
+    ],
   },
   {
     slug: "donation-system",
@@ -161,8 +370,29 @@ export const projects: Project[] = [
     numbers: [{ value: "169", label: "API endpoints" }],
     stack: ["Electron", "Express", "TypeScript", "MongoDB", "TOTP 2FA"],
     summary: "An Electron desktop app for Windows and macOS with thermal-receipt printing, two-factor authentication, English/Urdu reports and auto-updating releases.",
-    body: [
-      "The academy needed to record donations at the desk, print a receipt on the spot, and report in both English and Urdu. The system is an Electron desktop app for Windows and macOS on an Express/TypeScript/MongoDB API with 169 endpoints, with thermal-receipt printing, TOTP two-factor authentication, and CI-built auto-updating releases.",
+    body: ["The academy needed to record donations at the desk, print a receipt on the spot, and report in both English and Urdu. The system is an Electron desktop app for Windows and macOS on an Express/TypeScript/MongoDB API with 169 endpoints, with thermal-receipt printing, TOTP two-factor authentication, and CI-built auto-updating releases."],
+    sketch: {
+      w: 640, h: 300,
+      nodes: [
+        { id: "app", x: 20, y: 40, w: 170, h: 58, label: "Electron app", sub: "Windows · macOS" },
+        { id: "api", x: 250, y: 40, w: 150, h: 58, label: "Express API", sub: "169 endpoints" },
+        { id: "db", x: 470, y: 34, w: 130, h: 66, label: "MongoDB", kind: "store" },
+        { id: "print", x: 20, y: 170, w: 170, h: 54, label: "Thermal receipts" },
+        { id: "totp", x: 250, y: 170, w: 150, h: 54, label: "TOTP two-factor", kind: "pill" },
+        { id: "rep", x: 470, y: 170, w: 150, h: 54, label: "Reports", sub: "English · Urdu" },
+      ],
+      edges: [
+        { from: "app", to: "api" },
+        { from: "api", to: "db" },
+        { from: "app", to: "print" },
+        { from: "totp", to: "api", dashed: true },
+        { from: "api", to: "rep" },
+      ],
+    },
+    steps: [
+      { title: "At the desk", text: "An Electron app for Windows and macOS records each donation and prints a thermal receipt on the spot.", nodes: ["app", "print"] },
+      { title: "Behind it", text: "An Express/TypeScript API with 169 endpoints over MongoDB, guarded by TOTP two-factor login.", nodes: ["api", "db", "totp"] },
+      { title: "Reports in two languages", text: "English and Urdu reports, and CI-built releases that update themselves.", nodes: ["api", "rep"] },
     ],
   },
   {
@@ -173,10 +403,29 @@ export const projects: Project[] = [
     org: "Freelance",
     period: "2024",
     numbers: [{ value: "5", label: "publishing connectors" }],
-    stack: ["Next.js", "Prisma", "PostgreSQL", "BullMQ", "Stripe"],
+    stack: ["Next.js", "Prisma", "PostgreSQL", "BullMQ", "Stripe", "OAuth"],
     summary: "Publishing connectors for Facebook, Instagram, LinkedIn, X and YouTube, with their OAuth flows, background workers and billing.",
-    body: [
-      "SocialSync schedules and publishes posts across Facebook, Instagram, LinkedIn, X and YouTube. I co-developed the platform on Next.js, Prisma and PostgreSQL: the publishing connectors and their OAuth flows, the BullMQ workers that run the schedule, and Stripe billing.",
+    body: ["SocialSync schedules and publishes posts across Facebook, Instagram, LinkedIn, X and YouTube. I co-developed the platform on Next.js, Prisma and PostgreSQL: the publishing connectors and their OAuth flows, the BullMQ workers that run the schedule, and Stripe billing."],
+    sketch: {
+      w: 640, h: 300,
+      nodes: [
+        { id: "app", x: 20, y: 40, w: 150, h: 58, label: "Next.js app" },
+        { id: "db", x: 250, y: 34, w: 150, h: 66, label: "PostgreSQL", sub: "Prisma", kind: "store" },
+        { id: "workers", x: 250, y: 170, w: 150, h: 54, label: "BullMQ workers", sub: "the schedule" },
+        { id: "nets", x: 460, y: 150, w: 160, h: 90, label: "5 networks", sub: "FB · IG · LinkedIn · X · YouTube" },
+        { id: "stripe", x: 20, y: 170, w: 150, h: 54, label: "Stripe billing", kind: "pill" },
+      ],
+      edges: [
+        { from: "app", to: "db" },
+        { from: "db", to: "workers" },
+        { from: "workers", to: "nets", label: "OAuth publish" },
+        { from: "stripe", to: "app", dashed: true },
+      ],
+    },
+    steps: [
+      { title: "Schedule", text: "Posts are planned in a Next.js app over PostgreSQL.", nodes: ["app", "db"] },
+      { title: "Publish", text: "BullMQ workers publish on time through OAuth connectors for Facebook, Instagram, LinkedIn, X and YouTube.", nodes: ["workers", "nets"] },
+      { title: "Bill", text: "Stripe billing for the subscription.", nodes: ["stripe", "app"] },
     ],
   },
 ];

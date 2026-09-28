@@ -1,0 +1,124 @@
+{
+  "title": "Re-roll: choose the new visual world",
+  "question": "Magma Chamber, Cyclorama City and Cracktro are out. The roll assigned The Whiteboard Session. Keep it, take an alternate, or re-roll again.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "The Whiteboard Session",
+      "kicker": "THE ROLL",
+      "lineage": "the engineer at the whiteboard, explaining how the system works",
+      "thesis": "The whole site is a whiteboard session with Umer. Systems draw themselves in marker as you scroll: boxes, arrows, numbers. Day is a matte white board; night is a dark glass wall with chalk-white ink. Your cursor is a marker; you can draw. It refuses the dark-hero-with-a-floating-3D-object portfolio and the previous cave.",
+      "palette": ["#FAFAF7", "#0B0F19", "#111827", "#2340F0", "#FF7A9A", "#F4F5F7"],
+      "materials": ["marker ink that draws in stroke by stroke", "sticky notes", "a whiteboard-app toolbar", "felt eraser wipes"],
+      "viewport": "A clean board. Top-left, the name written in marker. Centre, a live system diagram draws itself: LLM agent → human approval → voice pipeline → multi-tenant SaaS → Kubernetes, with the headline 'I build AI products end to end' in a modern display grotesk. Bottom-left, two sticky notes: 'Hire me' (email + CV) and 'Build with me' (start a project). Right edge, the toolbar: theme, sound, marker colour. Move the mouse and a marker trail follows; click-drag draws on the board and fades.",
+      "risk": "Hand-drawn can read casual if the strokes are sloppy; the strokes, timing and type must be precise and silky. Big diagrams need care on phones.",
+      "raised": [
+        {"from": "challenger-brick", "raise": "Every project is explained as numbered assembly steps: prior parts ghosted, the new part bright, an arrow to its seat."},
+        {"from": "challenger-neubrutalist", "raise": "One fixed rhythmic grid and a few decisive type sizes; every control has a physical press."},
+        {"from": "challenger-risograph", "raise": "Two-ink discipline: graphite plus one cobalt marker, rose only for the live highlight."},
+        {"from": "challenger-sneaker", "raise": "Two-stage reveal on project cards: pull halfway to peek, open to go deeper."},
+        {"from": "challenger-teletext", "raise": "The grid module is sacred; small screens scale the module, never reflow the diagram."},
+        {"from": "challenger-ticket", "raise": "Nothing disappears: visited sections stay ticked on the board for the visit."}
+      ],
+      "comp": ".impeccable/mocks/decision/whiteboard.webp"
+    },
+    {
+      "id": "model-pick",
+      "label": "The Launch Keynote",
+      "kicker": "IMPECCABLE'S PICK",
+      "lineage": "flagship product launch pages",
+      "thesis": "Each system Umer built is revealed like a flagship product: full-bleed, scroll-driven, real-time demos, one product per act, with a keynote's pacing.",
+      "palette": ["#0A0A0B", "#FFFFFF", "#2340F0", "#8FA2FF", "#F5F5F7"],
+      "materials": ["cinematic scroll sequences", "device-frame demos", "large numerals"],
+      "viewport": "A single line and the name, then the first product rises into frame as you scroll, its numbers counting.",
+      "risk": "This is the direction most portfolios of this ambition land on; familiar and effective.",
+      "comp": ".impeccable/mocks/decision/keynote.webp"
+    },
+    {
+      "id": "challenger-brick",
+      "label": "Build Instructions",
+      "verdict": "competitive",
+      "lineage": "brick build-instruction booklets",
+      "thesis": "Every product as an exploded assembly: numbered steps, 1:1 call-outs, ghosted prior parts, the new piece bright with an arrow.",
+      "palette": ["#BFE3FF", "#111111", "#D7263D", "#FFD500"],
+      "materials": ["exploded step diagrams", "stud grid", "wordless arrows"],
+      "viewport": "Step 1 of AlphaVenue: the API brick drops onto the data-model plate along a dashed arrow.",
+      "case": "Holds product clarity (a client sees exactly how a system assembles); loses audience identification for a recruiter reading a professional profile.",
+      "risk": "Toy grammar can undercut seniority if the type and colour are not disciplined.",
+      "comp": ".impeccable/mocks/decision/brick.webp",
+      "hero": "https://impeccable.style/worlds/cards/games-toys-physics-play-brick-build-instructions-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/games-toys-physics-play-brick-build-instructions.webp"
+    },
+    {
+      "id": "challenger-neubrutalist",
+      "label": "Neubrutalist, award-grade",
+      "verdict": "competitive",
+      "lineage": "award-grade neubrutalist product sites",
+      "thesis": "Bright solids in heavy black outlines on off-white, hard offset shadows, buttons that snap into their shadow, all on one strict grid.",
+      "palette": ["#F5F1E8", "#000000", "#FFC53D", "#FF5DA2", "#2F6BFF", "#B4FF3A"],
+      "materials": ["black keylines", "hard offset shadows", "flat solids"],
+      "viewport": "Name in a chunky grotesk inside a black-outlined block; four coloured project blocks below.",
+      "case": "Holds product clarity and reads modern to founders; loses on your steer toward classy and silky, since this world is loud by design.",
+      "risk": "Very recognisable style; reads as a trend.",
+      "comp": ".impeccable/mocks/decision/neubrutalist.webp",
+      "hero": "https://impeccable.style/worlds/cards/neubrutalist-award-grade-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/neubrutalist-award-grade.webp"
+    },
+    {
+      "id": "challenger-ticket",
+      "label": "Jet-age Ticket Wallet",
+      "verdict": "declined",
+      "lineage": "airline ticket wallets with carbon-copy coupons",
+      "palette": ["#FFFFFF", "#1B3A6B", "#C8102E", "#5B2C83"],
+      "materials": ["coupon stock", "carbon numerals", "VOID stamps"],
+      "case": "Charming, but neither recruiters nor product clients identify with paper coupons, and numbers in carbon fields lose clarity.",
+      "kept": "Nothing disappears; state cancels visibly.",
+      "hero": "https://impeccable.style/worlds/cards/vernacular-ephemera-jet-age-ticket-wallet-hero.webp"
+    },
+    {
+      "id": "challenger-risograph",
+      "label": "Risograph",
+      "verdict": "declined",
+      "lineage": "two-ink risograph prints",
+      "palette": ["#F3EBDD", "#FF48B0", "#0055D4", "#FFD400"],
+      "materials": ["fluorescent spot inks", "halftone grain", "misregistration"],
+      "case": "A print world for a software engineer; the misregistration device reads as decoration against a tech-savvy brief.",
+      "kept": "Two-ink discipline.",
+      "hero": "https://impeccable.style/worlds/cards/risograph-web-system-hero.webp"
+    },
+    {
+      "id": "challenger-teletext",
+      "label": "Teletext Magazine",
+      "verdict": "declined",
+      "lineage": "broadcast teletext pages",
+      "palette": ["#000000", "#FFFF00", "#00FFFF", "#FF0000", "#FFFFFF"],
+      "materials": ["bitmap mosaic", "40x24 grid"],
+      "case": "Retro novelty; a bitmap face cannot carry the CV's prose or a classy register.",
+      "kept": "One sacred grid module.",
+      "hero": "https://impeccable.style/worlds/cards/broadcast-programming-teletext-service-hero.webp"
+    },
+    {
+      "id": "challenger-sneaker",
+      "label": "Sneaker Box Wall",
+      "verdict": "declined",
+      "lineage": "stacked sneaker boxes with end labels",
+      "palette": ["#C9611E", "#111111", "#FFFFFF"],
+      "materials": ["cardboard", "tissue", "silhouette line art"],
+      "case": "Collector grammar; the audience does not shop for an engineer this way.",
+      "kept": "Peek, then open: a two-stage reveal.",
+      "hero": "https://impeccable.style/worlds/cards/textiles-weave-drape-fashion-sneaker-box-stacks-hero.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code", "toggle": false },
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "Dark hero, big name, a floating 3D object, a project grid, a contact form; executed impeccably.",
+    "palette": ["#0A0A0A", "#FFFFFF", "#7C3AED"],
+    "materials": ["floating 3D primitive", "glass cards"],
+    "viewport": "Centered name over a rotating 3D object, three project cards below.",
+    "risk": "Indistinguishable from ten thousand developer portfolios by design."
+  },
+  "steer": true
+}

@@ -1,368 +1,325 @@
 @import "tailwindcss";
 
-/* ── The chamber: tokens ─────────────────────────────────────────── */
+/* ── The board: tokens ───────────────────────────────────────────── */
+:root,
+:root[data-theme="day"] {
+  color-scheme: light;
+  --board: #fafaf7;
+  --surface: #ffffff;
+  --ink: #111827;
+  --ink-2: #4b5563;
+  --ink-3: #9ca3af;
+  --marker: #2340f0;
+  --marker-soft: rgb(35 64 240 / 0.12);
+  --rose: #ff7a9a;
+  --rose-soft: rgb(255 122 154 / 0.18);
+  --paper: #fff3c4;
+  --paper-ink: #3a2e00;
+  --grid: rgb(17 24 39 / 0.11);
+  --line: rgb(17 24 39 / 0.14);
+  --shadow: 0 14px 34px -16px rgb(17 24 39 / 0.4);
+  --note-shadow: 0 10px 24px -10px rgb(17 24 39 / 0.45);
+}
+:root[data-theme="night"] {
+  color-scheme: dark;
+  --board: #0b0f19;
+  --surface: #111827;
+  --ink: #f3f4f6;
+  --ink-2: #9ca3af;
+  --ink-3: #6b7280;
+  --marker: #6f87ff;
+  --marker-soft: rgb(111 135 255 / 0.16);
+  --rose: #ff7a9a;
+  --rose-soft: rgb(255 122 154 / 0.2);
+  --paper: #fff3c4;
+  --paper-ink: #3a2e00;
+  --grid: rgb(243 244 246 / 0.1);
+  --line: rgb(243 244 246 / 0.16);
+  --shadow: 0 18px 44px -18px rgb(0 0 0 / 0.85);
+  --note-shadow: 0 14px 30px -12px rgb(0 0 0 / 0.8);
+}
 :root {
-  --obsidian: #08070b;
-  --basalt: #17151c;
-  --basalt-2: #2a2731;
-  --ash: #9b96a6;
-  --ash-2: #6b6675;
-  --bone: #f2eef6;
-  --ember: #7a1a0e;
-  --magma: #ff3d1f;
-  --magma-2: #ff8a3d;
-  --core: #ffe8b0;
-
-  --heat: 0; /* 0–1, written per element by the heat field */
-  --grid: 10; /* the measured grid: ten divisions */
   --gutter: clamp(16px, 4vw, 64px);
-
-  --font-display: var(--font-big-shoulders), Impact, "Arial Narrow Bold", sans-serif;
-  --font-text: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
-
+  --font-display: var(--font-bricolage), "Helvetica Neue", Arial, sans-serif;
+  --font-text: var(--font-geist), "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, Menlo, monospace;
+  --font-hand: var(--font-shantell), "Segoe Print", "Bradley Hand", cursive;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.83, 0, 0.17, 1);
 }
 
 @theme inline {
-  --color-obsidian: var(--obsidian);
-  --color-basalt: var(--basalt);
-  --color-basalt-2: var(--basalt-2);
-  --color-ash: var(--ash);
-  --color-ash-2: var(--ash-2);
-  --color-bone: var(--bone);
-  --color-ember: var(--ember);
-  --color-magma: var(--magma);
-  --color-magma-2: var(--magma-2);
-  --color-core: var(--core);
+  --color-board: var(--board);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-marker: var(--marker);
+  --color-rose: var(--rose);
+  --color-paper: var(--paper);
+  --color-paper-ink: var(--paper-ink);
+  --color-line: var(--line);
   --font-display: var(--font-display);
   --font-text: var(--font-text);
+  --font-mono: var(--font-mono);
+  --font-hand: var(--font-hand);
 }
 
 html {
-  color-scheme: dark;
-  background: var(--obsidian);
+  background: var(--board);
   scroll-behavior: auto;
 }
-
 body {
-  background: var(--obsidian);
-  color: var(--bone);
+  background: var(--board);
+  color: var(--ink);
   font-family: var(--font-text);
-  font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
   min-height: 100dvh;
+  transition: background-color 380ms var(--ease-out), color 380ms var(--ease-out);
 }
-
-/* html.lenis is set by Lenis; keep native scroll semantics for a11y */
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
 
 /* ── Browser surfaces carry the design ───────────────────────────── */
-::selection {
-  background: var(--magma);
-  color: var(--obsidian);
-}
-:focus-visible {
-  outline: 2px solid var(--core);
-  outline-offset: 4px;
-  border-radius: 2px;
-}
-* {
-  caret-color: var(--magma-2);
-  accent-color: var(--magma);
-}
-::-webkit-scrollbar {
-  width: 10px;
-}
-::-webkit-scrollbar-track {
-  background: var(--obsidian);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--basalt-2);
-  border: 2px solid var(--obsidian);
-  border-radius: 2px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--ember);
-}
-html {
-  scrollbar-color: var(--basalt-2) var(--obsidian);
-}
+::selection { background: var(--marker); color: var(--board); }
+:focus-visible { outline: 2px solid var(--marker); outline-offset: 4px; border-radius: 6px; }
+* { caret-color: var(--marker); accent-color: var(--marker); }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--board); }
+::-webkit-scrollbar-thumb { background: var(--line); border: 2px solid var(--board); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: var(--marker); }
+html { scrollbar-color: var(--line) var(--board); }
 
 /* ── Type ───────────────────────────────────────────────────────── */
 .display {
   font-family: var(--font-display);
   font-weight: 800;
-  line-height: 0.86;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  font-variation-settings: "opsz" 96, "wdth" 100;
+  text-wrap: balance;
+}
+.display-md {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  font-variation-settings: "opsz" 48, "wdth" 100;
+  text-wrap: balance;
 }
 .numeral {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
   font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: -0.02em;
-  line-height: 0.9;
+  font-variation-settings: "opsz" 96, "wdth" 100;
 }
-.prose-chamber {
-  max-width: 66ch;
-  font-size: clamp(1.0625rem, 0.95rem + 0.4vw, 1.25rem);
-  line-height: 1.55;
-  color: var(--bone);
+.hand {
+  font-family: var(--font-hand);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--marker);
 }
-.prose-chamber p + p {
-  margin-top: 1.1em;
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.prose-board {
+  max-width: 64ch;
+  font-size: clamp(1.0625rem, 0.95rem + 0.4vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--ink-2);
 }
-.prose-chamber strong {
-  color: var(--core);
-  font-weight: 600;
+.prose-board p + p { margin-top: 1em; }
+.prose-board strong { color: var(--ink); font-weight: 600; }
+.lead {
+  font-size: clamp(1.2rem, 1.05rem + 0.7vw, 1.6rem);
+  line-height: 1.4;
+  color: var(--ink);
+  text-wrap: pretty;
 }
 
-/* Heat-lit text: the glow rises with --heat */
-.heat-text {
-  text-shadow:
-    0 0 calc(var(--heat) * 18px) rgb(255 138 61 / calc(var(--heat) * 0.75)),
-    0 0 calc(var(--heat) * 48px) rgb(255 61 31 / calc(var(--heat) * 0.45));
-  color: color-mix(in oklab, var(--bone), var(--core) calc(var(--heat) * 100%));
-}
-
-/* Ember underline on links */
-.ember-link {
+/* Marker underline: a hand-drawn stroke under a link */
+.ink-link {
   position: relative;
-  color: var(--bone);
+  color: var(--ink);
   text-decoration: none;
+  background-image: linear-gradient(var(--marker), var(--marker));
+  background-repeat: no-repeat;
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  transition: background-size 320ms var(--ease-out), color 200ms var(--ease-out);
+  padding-bottom: 2px;
 }
-.ember-link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.12em;
-  height: 1px;
-  background: linear-gradient(90deg, var(--magma), var(--core));
-  transform: scaleX(calc(0.18 + var(--heat) * 0.82));
-  transform-origin: left;
-  transition: transform 320ms var(--ease-out);
-  opacity: calc(0.55 + var(--heat) * 0.45);
-}
-.ember-link:hover::after,
-.ember-link:focus-visible::after {
-  transform: scaleX(1);
-}
+.ink-link:hover, .ink-link:focus-visible, .ink-link[aria-current="page"] { background-size: 100% 2px; }
 
-/* Slab: a block of cooled rock. Hairline fissure border that glows with heat. */
-.slab {
-  position: relative;
-  border-radius: 2px;
-  /* Cooled rock: the same photoscan as the floor, at low exposure, opaque. */
-  background:
-    linear-gradient(rgb(12 11 16 / 0.84), rgb(12 11 16 / 0.84)),
-    url("/textures/rock-diff.webp") center / 720px repeat;
-  background-color: var(--basalt);
-  box-shadow:
-    inset 0 0 0 1px color-mix(in oklab, var(--basalt-2), var(--magma) calc(var(--heat) * 70%)),
-    0 30px 60px -34px rgb(0 0 0 / 0.95);
+/* ── Strokes: SVG paths draw themselves ──────────────────────────── */
+.stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
-.slab::before {
-  /* fissure light along the top edge */
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--magma-2), transparent);
-  opacity: calc(var(--heat) * 0.9);
-  pointer-events: none;
-}
+.draw { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.draw.drawn, [data-drawn] .draw { stroke-dashoffset: 0; }
 
-/* Buttons melt: the fill rises from ember to core */
-.btn {
-  --melt: var(--heat);
+/* ── Sticky notes ───────────────────────────────────────────────── */
+.note {
   position: relative;
   display: inline-flex;
-  align-items: center;
-  gap: 0.6em;
-  min-height: 52px;
-  padding: 0 1.5rem;
-  border-radius: 2px;
-  font-family: var(--font-text);
-  font-weight: 600;
-  font-size: 0.9375rem;
-  letter-spacing: 0.01em;
-  color: var(--bone);
-  background: var(--basalt);
-  box-shadow: inset 0 0 0 1px var(--basalt-2);
-  overflow: hidden;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 12rem;
+  padding: 1rem 1.1rem 1.05rem;
+  background: var(--paper);
+  color: var(--paper-ink);
+  border-radius: 6px;
+  box-shadow: var(--note-shadow);
+  transform: rotate(var(--tilt, -1.2deg));
+  transition: transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out);
+  text-decoration: none;
   isolation: isolate;
-  transition:
-    transform 160ms var(--ease-out),
-    box-shadow 240ms var(--ease-out),
-    color 240ms var(--ease-out);
-  cursor: pointer;
-  white-space: nowrap;
 }
-.btn::before {
+.note::before {
+  /* the tape */
   content: "";
   position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(180deg, var(--core) 0%, var(--magma-2) 45%, var(--magma) 100%);
-  transform: translateY(calc(100% - var(--melt) * 100%));
-  transition: transform 420ms var(--ease-out);
-}
-.btn:hover,
-.btn:focus-visible {
-  --melt: 1;
-  color: var(--obsidian);
-  box-shadow: inset 0 0 0 1px var(--magma-2), 0 0 40px -6px rgb(255 61 31 / 0.55);
-}
-.btn:active {
-  transform: translateY(1px) scale(0.985);
-}
-/* The primary action is already molten; heat makes it radiate rather than half-fill it. */
-.btn-primary {
-  --melt: 1;
-  color: var(--obsidian);
-  box-shadow: inset 0 0 0 1px var(--magma-2), 0 0 calc(12px + var(--heat) * 36px) calc(-4px + var(--heat) * 2px) rgb(255 61 31 / calc(0.35 + var(--heat) * 0.4));
-}
-.btn-primary::before {
-  transform: translateY(0);
-}
-.btn-primary:hover,
-.btn-primary:focus-visible {
-  box-shadow: inset 0 0 0 1px var(--core), 0 0 48px -4px rgb(255 138 61 / 0.7);
-}
-
-/* Long prose sits on a scrim of cooled rock so the glow never runs under the words */
-.ground {
-  background: rgb(8 7 11 / 0.78);
-  padding: clamp(20px, 3vw, 40px);
+  top: -8px;
+  left: 50%;
+  width: 54px;
+  height: 16px;
+  transform: translateX(-50%) rotate(-2deg);
+  background: var(--tab, var(--marker));
+  opacity: 0.85;
   border-radius: 2px;
-  box-shadow: inset 0 0 0 1px var(--basalt-2);
 }
-.portrait {
-  filter: contrast(1.04) saturate(0.82) sepia(0.12);
-}
+.note:hover, .note:focus-visible { transform: rotate(0deg) translateY(-3px) scale(1.02); box-shadow: 0 22px 40px -14px rgb(17 24 39 / 0.5); }
+.note:active { transform: rotate(0deg) translateY(1px) scale(0.99); }
+.note-rose { --tab: var(--rose); }
+.note .note-title { font-family: var(--font-hand); font-weight: 600; font-size: 1.35rem; line-height: 1.1; color: var(--paper-ink); }
+.note .note-sub { font-size: 0.875rem; line-height: 1.35; color: rgb(58 46 0 / 0.75); }
 
-/* A castings row cools from core to bone as it settles */
-.cooling {
-  --cool: 0; /* 0 = molten, 1 = cooled */
-  color: color-mix(in oklab, var(--core), var(--bone) calc(var(--cool) * 100%));
+/* ── Controls ───────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  min-height: 48px;
+  padding: 0 1.25rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 140ms var(--ease-out), background-color 200ms var(--ease-out), color 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
+  cursor: pointer;
 }
-.cooling .fissure {
-  background: color-mix(in oklab, var(--magma), var(--basalt-2) calc(var(--cool) * 100%));
-  box-shadow: 0 0 calc((1 - var(--cool)) * 24px) rgb(255 61 31 / calc((1 - var(--cool)) * 0.7));
-}
+.btn:hover, .btn:focus-visible { background: var(--ink); color: var(--board); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.btn:active { transform: translateY(1px) scale(0.985); }
+.btn-marker { background: var(--marker); color: #fff; box-shadow: inset 0 0 0 1.5px var(--marker); }
+.btn-marker:hover, .btn-marker:focus-visible { background: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
 
-/* Grid: ten divisions, measured */
-.measured {
-  display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  column-gap: clamp(12px, 1.5vw, 24px);
+.tool {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1.5px var(--line);
+  transition: transform 140ms var(--ease-out), box-shadow 200ms var(--ease-out), background-color 200ms;
+  cursor: pointer;
 }
+.tool:hover, .tool:focus-visible { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.tool:active { transform: scale(0.94); }
+.tool[aria-pressed="true"] { background: var(--ink); color: var(--board); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.swatch { width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--board), 0 0 0 1.5px var(--line); }
+.tool[aria-pressed="true"] .swatch { box-shadow: inset 0 0 0 2px var(--ink), 0 0 0 1.5px var(--board); }
 
-/* Descend cue */
-@keyframes descend {
-  0% { transform: translateY(-40%); opacity: 0; }
-  30% { opacity: 1; }
-  100% { transform: translateY(60%); opacity: 0; }
+/* ── Panels: things pinned to the board ─────────────────────────── */
+.panel {
+  background: var(--surface);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1.5px var(--line), var(--shadow);
 }
-.descend-bar {
-  animation: descend 1.8s var(--ease-in-out) infinite;
-}
+.hairline { height: 1.5px; background: var(--line); }
+.tick { color: var(--marker); }
 
-/* Custom cursor ember */
-.ember-cursor {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 14px;
-  height: 14px;
-  margin: -7px 0 0 -7px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  mix-blend-mode: screen;
-  background: radial-gradient(circle, var(--core) 0%, var(--magma-2) 35%, transparent 70%);
-  box-shadow: 0 0 24px 6px rgb(255 61 31 / 0.35);
-  will-change: transform;
-  opacity: 0;
-}
-@media (hover: hover) and (pointer: fine) {
-  .ember-cursor { opacity: 1; }
-}
-
-/* Magma surge: the page transition */
-.surge {
+/* ── The eraser: page transition ────────────────────────────────── */
+.eraser {
   position: fixed;
   inset: 0;
   z-index: 200;
   pointer-events: none;
-  transform: translateY(118%);
-  will-change: transform;
-  background:
-    radial-gradient(120% 60% at 50% 100%, var(--core) 0%, var(--magma-2) 30%, var(--magma) 55%, var(--ember) 85%, var(--obsidian) 100%);
+  background: var(--board);
+  --l: 0%;
+  --r: 100%;
+  clip-path: inset(0 var(--r) 0 var(--l));
+  will-change: clip-path;
 }
-.surge::before {
+.eraser::after {
+  /* the felt edge */
   content: "";
   position: absolute;
-  left: -10%;
-  right: -10%;
-  top: -14vh;
-  height: 15vh;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120' preserveAspectRatio='none'%3E%3Cpath fill='%23ff3d1f' d='M0 90 C 120 30, 240 120, 360 70 S 600 20, 720 80 S 960 120, 1080 60 S 1320 30, 1440 90 L1440 120 L0 120 Z'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
-  filter: drop-shadow(0 -20px 40px rgb(255 61 31 / 0.5));
+  top: 0;
+  bottom: 0;
+  right: calc(var(--r) - 10px);
+  width: 22px;
+  background: linear-gradient(90deg, transparent, var(--line));
+  opacity: 0.9;
 }
-.surge.cooling-phase {
-  background: var(--obsidian);
-}
+.eraser.reveal::after { right: auto; left: calc(var(--l) - 10px); background: linear-gradient(90deg, var(--line), transparent); }
 
-/* Static chamber for reduced motion / no WebGL */
-.chamber-static {
+/* ── Marker cursor ──────────────────────────────────────────────── */
+.marker-cursor {
   position: fixed;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(60% 40% at 50% 100%, rgb(255 61 31 / 0.22), transparent 70%),
-    radial-gradient(30% 20% at 20% 70%, rgb(255 138 61 / 0.12), transparent 70%),
-    linear-gradient(180deg, #0a0910 0%, var(--obsidian) 60%);
+  left: 0; top: 0;
+  width: 10px; height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: var(--marker);
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  will-change: transform;
 }
-.chamber-static::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("/images/basalt-noise.png");
-  background-size: 512px;
-  opacity: 0.35;
-  mix-blend-mode: overlay;
-}
+@media (hover: hover) and (pointer: fine) { .marker-cursor { opacity: 0.9; } }
 
-@media (prefers-reduced-motion: reduce) {
-  .descend-bar { animation: none; opacity: 0.8; }
-  .btn::before, .ember-link::after { transition: none; }
-}
-
-/* The nav floats on a scrim of the chamber's own dark, so content never collides with it */
+/* The nav floats on a scrim of the board so content never runs under the name */
 .nav-scrim::before {
   content: "";
   position: absolute;
-  inset: 0 0 -40px 0;
+  inset: 0 0 -28px 0;
   z-index: -1;
-  background: linear-gradient(to bottom, rgb(8 7 11 / 0.92) 0%, rgb(8 7 11 / 0.7) 55%, transparent 100%);
+  background: linear-gradient(to bottom, var(--board) 0%, color-mix(in oklab, var(--board) 85%, transparent) 60%, transparent 100%);
   pointer-events: none;
 }
 
-/* Utilities */
+/* ── Layout ─────────────────────────────────────────────────────── */
 .gutter { padding-inline: var(--gutter); }
-.hairline { height: 1px; background: var(--basalt-2); }
-.tabular { font-variant-numeric: tabular-nums; }
+.measured { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(12px, 1.5vw, 24px); }
+.act { min-height: 100dvh; display: grid; align-content: center; padding-block: clamp(64px, 10vh, 120px); }
+
+/* Ghosted vs current parts in assembly steps */
+.part { transition: opacity 320ms var(--ease-out), color 320ms var(--ease-out); }
+.part-ghost { opacity: 0.28; }
+.part-current { color: var(--marker); }
+
+/* Peek: a card lifts to show its sketch */
+.peek { transition: transform 320ms var(--ease-out), box-shadow 320ms var(--ease-out); }
+.peek:hover, .peek:focus-within { transform: translateY(-4px); box-shadow: inset 0 0 0 1.5px var(--ink), var(--shadow); }
+.peek .peek-strip { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 420ms var(--ease-out), opacity 300ms; opacity: 0; }
+.peek .peek-strip > * { min-height: 0; overflow: hidden; }
+.peek:hover .peek-strip, .peek:focus-within .peek-strip { grid-template-rows: 1fr; opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .draw { stroke-dashoffset: 0; }
+  .note, .btn, .tool, .ink-link, .peek, .part { transition: none; }
+  .marker-cursor { display: none; }
+}

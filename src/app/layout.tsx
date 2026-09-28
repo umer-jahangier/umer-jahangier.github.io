@@ -1,26 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Big_Shoulders } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
-import Chamber from "@/components/three/ChamberLoader";
+import Board from "@/components/board/Board";
+import Toolbar from "@/components/board/Toolbar";
 import SmoothScroll from "@/components/motion/SmoothScroll";
-import HeatCursor from "@/components/motion/HeatCursor";
-import { TransitionProvider } from "@/components/motion/Transition";
+import { EraserProvider } from "@/components/motion/Eraser";
 import Nav from "@/components/ui/Nav";
 import { site } from "@/content/profile";
+import { themeBootScript } from "@/lib/prefs";
 
-const bigShoulders = Big_Shoulders({
-  variable: "--font-big-shoulders",
-  subsets: ["latin"],
-  weight: "variable",
-  axes: ["opsz"],
-  display: "swap",
-});
-const archivo = Archivo({
-  variable: "--font-archivo",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-});
+import { bricolage, geist, geistMono, shantell } from "./fonts";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -41,8 +30,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#08070b",
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafaf7" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0f19" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
@@ -68,21 +59,22 @@ const personLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${bigShoulders.variable} ${archivo.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${bricolage.variable} ${geist.variable} ${geistMono.variable} ${shantell.variable}`}>
       <body>
+        <Script id="theme-boot" strategy="beforeInteractive">{themeBootScript}</Script>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }} />
-        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[300] focus:bg-core focus:px-4 focus:py-2 focus:text-obsidian">
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[300] focus:bg-marker focus:px-4 focus:py-2 focus:text-white focus:rounded-md">
           Skip to content
         </a>
-        <Chamber />
+        <Board />
         <SmoothScroll />
-        <HeatCursor />
-        <TransitionProvider>
+        <EraserProvider>
           <Nav />
+          <Toolbar />
           <main id="main" className="relative z-10">
             {children}
           </main>
-        </TransitionProvider>
+        </EraserProvider>
       </body>
     </html>
   );

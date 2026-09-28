@@ -47,7 +47,7 @@
     "noteKeys": {
       ".read": false,
       "$id": {
-        ".write": "(!data.exists() && newData.isString() && newData.val().matches(/^[a-f0-9]{32}$/)) || (newData.val() == null && !root.child('notes').child($id).exists())"
+        ".write": "(!data.exists() && !root.child('notes').child($id).exists() && newData.isString() && newData.val().matches(/^[a-f0-9]{32}$/)) || (newData.val() == null && !root.child('notes').child($id).exists())"
       }
     },
     "noteProofs": {

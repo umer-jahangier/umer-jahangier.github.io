@@ -7,3 +7,5 @@ out
 .impeccable/review
 .impeccable/build
 .env.local
+.env.production
+.env*.local

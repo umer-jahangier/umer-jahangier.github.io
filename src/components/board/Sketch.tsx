@@ -47,8 +47,19 @@ function edgePath(a: SketchNode, b: SketchNode, pa: { x: number; y: number }, pb
  * (once), nodes are draggable and spring back, and `current`/`ghost` let an
  * assembly step light up the parts it is talking about.
  */
-export default function Sketch({ def, className = "", current, ghost = false, title, eager = false }: { def: SketchDef; className?: string; current?: string[]; ghost?: boolean; title?: string; eager?: boolean }) {
+export default function Sketch({ def: desktopDef, mobile, pan = true, className = "", current, ghost = false, title, eager = false }: { def: SketchDef; mobile?: SketchDef; pan?: boolean; className?: string; current?: string[]; ghost?: boolean; title?: string; eager?: boolean }) {
   const root = useRef<SVGSVGElement>(null);
+  // Below 640px a sketch either swaps to its phone layout or keeps its module and pans sideways.
+  const [small, setSmall] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    const sync = () => setSmall(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+  const def = small && mobile ? mobile : desktopDef;
+  const panning = pan && !(small && mobile);
   const [pos, setPos] = useState<Pos>({});
   const dragging = useRef<{ id: string; sx: number; sy: number; ox: number; oy: number } | null>(null);
   const byId = useMemo(() => Object.fromEntries(def.nodes.map((n) => [n.id, n])), [def]);
@@ -109,10 +120,11 @@ export default function Sketch({ def, className = "", current, ghost = false, ti
   const isCurrent = (id: string) => !current || current.includes(id);
 
   return (
+    <div className={panning ? "overflow-x-auto overscroll-x-contain" : undefined}>
     <svg
       ref={root}
       viewBox={`0 0 ${def.w} ${def.h}`}
-      className={`block w-full h-auto text-ink ${className}`}
+      className={`block w-full h-auto text-ink ${panning ? "max-sm:min-w-[560px]" : ""} ${className}`}
       role="img"
       aria-label={title ?? "System diagram"}
       data-no-draw
@@ -179,5 +191,6 @@ export default function Sketch({ def, className = "", current, ghost = false, ti
         </text>
       ))}
     </svg>
+    </div>
   );
 }

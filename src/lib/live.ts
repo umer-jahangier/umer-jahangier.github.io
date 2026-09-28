@@ -14,6 +14,7 @@ const RAW = process.env.NEXT_PUBLIC_FIREBASE_CONFIG;
 export const liveConfigured = !!RAW;
 export const STROKE_TTL = 8000; // ms a stroke stays before fading
 export const STROKE_FADE = 2200;
+export const WALL_TTL = 24 * 60 * 60 * 1000; // the open board keeps a drawing for a day
 
 type Cfg = { databaseURL?: string; projectId?: string; [k: string]: unknown };
 
@@ -41,7 +42,7 @@ async function db() {
         // Reachability: a missing database answers 404; a locked one answers 401, which still proves it exists.
         const ctrl = new AbortController();
         const timer = window.setTimeout(() => ctrl.abort(), 4000);
-        const res = await fetch(`${cfg.databaseURL}/notes.json?shallow=true&limitToLast=1`, { signal: ctrl.signal });
+        const res = await fetch(`${cfg.databaseURL}/notes.json?shallow=true`, { signal: ctrl.signal });
         window.clearTimeout(timer);
         if (res.status === 404) return null;
         const [{ initializeApp, getApps }, { getDatabase }] = await Promise.all([import("firebase/app"), import("firebase/database")]);
@@ -93,14 +94,19 @@ export async function publishStroke(s: Omit<LiveStroke, "id">) {
 export async function subscribeStrokes(onStroke: (s: LiveStroke) => void) {
   const d = await db();
   if (!d) return () => {};
-  const { ref, query, limitToLast, onChildAdded } = await import("firebase/database");
+  const { ref, query, limitToLast, onChildAdded, remove } = await import("firebase/database");
   const q = query(ref(d, "strokes"), limitToLast(60));
   const unsub = onChildAdded(
     q,
     (snap) => {
       const v = snap.val() as Omit<LiveStroke, "id"> | null;
-      if (!v || !Array.isArray(v.p) || typeof v.t !== "number" || typeof v.c !== "string" || v.cid === clientId) return;
-      if (Date.now() - v.t > STROKE_TTL + STROKE_FADE) return;
+      if (!v || !Array.isArray(v.p) || typeof v.t !== "number" || typeof v.c !== "string") return;
+      if (Date.now() - v.t > STROKE_TTL + STROKE_FADE + 12000) {
+        // Left behind by a visitor who closed the tab: any reader may wipe it once it is old.
+        remove(snap.ref).catch(() => {});
+        return;
+      }
+      if (v.cid === clientId || Date.now() - v.t > STROKE_TTL + STROKE_FADE) return;
       onStroke({ id: snap.key ?? "", ...v });
     },
     () => {},
@@ -139,4 +145,43 @@ export async function subscribeNotes(onNotes: (n: LiveNote[]) => void) {
     () => {},
   );
   return unsub;
+}
+
+/** The open board: a drawing stays a day. Returns the stored key, or null. */
+export async function publishWall(s: Omit<LiveStroke, "id">) {
+  const d = await db();
+  if (!d) return null;
+  try {
+    const { ref, push, set } = await import("firebase/database");
+    const r = push(ref(d, "wall"));
+    await set(r, { c: s.c, t: s.t, p: s.p });
+    return r.key;
+  } catch {
+    return null;
+  }
+}
+
+export async function subscribeWall(onAdd: (s: LiveStroke) => void, onRemove: (id: string) => void) {
+  const d = await db();
+  if (!d) return () => {};
+  const { ref, query, limitToLast, onChildAdded, onChildRemoved, remove } = await import("firebase/database");
+  const q = query(ref(d, "wall"), limitToLast(400));
+  const a = onChildAdded(
+    q,
+    (snap) => {
+      const v = snap.val() as Partial<LiveStroke> | null;
+      if (!v || !Array.isArray(v.p) || typeof v.t !== "number" || typeof v.c !== "string") return;
+      if (Date.now() - v.t > WALL_TTL) {
+        remove(snap.ref).catch(() => {});
+        return;
+      }
+      onAdd({ id: snap.key ?? "", cid: "", c: v.c, t: v.t, p: v.p });
+    },
+    () => {},
+  );
+  const b = onChildRemoved(q, (snap) => onRemove(snap.key ?? ""), () => {});
+  return () => {
+    a();
+    b();
+  };
 }

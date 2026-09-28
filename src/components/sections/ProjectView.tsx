@@ -26,16 +26,16 @@ export default function ProjectView({ p, next }: { p: Project; next: Project }) 
   );
   return (
     <article ref={root} className="gutter pt-32 md:pt-40">
-      <p className="pv-in text-ash text-[0.9375rem]">
-        {p.role} · {p.org} · {p.period}
-      </p>
-      <HeatHeading as="h1" className="pv-in mt-4 text-[clamp(3rem,10vw,11rem)] max-w-[12ch]" floor={0.25}>
+      <HeatHeading as="h1" className="pv-in text-[clamp(3rem,10vw,11rem)] max-w-[12ch]" floor={0.25}>
         {p.name}
       </HeatHeading>
       <p className="pv-in prose-chamber mt-8 max-w-[58ch] text-[clamp(1.25rem,1.1rem+0.7vw,1.7rem)] leading-[1.35]">{p.kicker}</p>
+      <p className="pv-in mt-5 text-ash text-[0.9375rem]">
+        {p.role} · {p.org} · {p.period}
+      </p>
 
       <div className="measured mt-[8vh] gap-y-12">
-        <div className="col-span-10 lg:col-span-6 prose-chamber">
+        <div className="col-span-10 lg:col-span-6 prose-chamber ground">
           <p className="pv-in text-bone font-medium">{p.summary}</p>
           {p.body.map((para, i) => (
             <p key={i} className="pv-para text-ash">
@@ -50,17 +50,17 @@ export default function ProjectView({ p, next }: { p: Project; next: Project }) 
             </div>
           )}
         </div>
-        <aside className="col-span-10 lg:col-span-3 lg:col-start-8">
+        <aside className="col-span-10 lg:col-span-3 lg:col-start-8 ground">
           <dl className="grid grid-cols-2 lg:grid-cols-1 gap-8">
             {p.numbers.map((n) => (
               <div key={n.label} className="pv-in">
-                <dt className="text-xs text-ash-2 order-2">{n.label}</dt>
+                <dt className="text-[0.8125rem] text-ash order-2">{n.label}</dt>
                 <dd className="numeral text-[clamp(2.6rem,5vw,4.4rem)] heat-text">{n.value}</dd>
               </div>
             ))}
           </dl>
           <div className="pv-in mt-10">
-            <h2 className="text-xs uppercase tracking-[0.18em] text-ash-2 mb-3">Stack</h2>
+            <h2 className="display text-[1.1rem] tracking-[0.03em] text-ash mb-3">Stack</h2>
             <ul className="flex flex-wrap gap-2">
               {p.stack.map((s) => (
                 <li key={s} className="slab px-3 py-1.5 text-[0.8125rem] text-bone">
@@ -75,7 +75,7 @@ export default function ProjectView({ p, next }: { p: Project; next: Project }) 
       <TransitionLink href={`/work/${next.slug}/`} className="group block mt-[14vh] border-t border-basalt-2 pt-8">
         <span ref={nextRef as never} className="heat-text flex items-end justify-between gap-6">
           <span>
-            <span className="block text-xs uppercase tracking-[0.18em] text-ash-2">Next casting</span>
+            <span className="block text-[0.9375rem] text-ash">Next casting</span>
             <span className="display block text-[clamp(2.4rem,6vw,6rem)] mt-2">{next.name}</span>
           </span>
           <span className="text-ash transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-core mb-3">

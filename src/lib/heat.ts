@@ -23,7 +23,9 @@ class HeatField {
   private started = false;
   private subscribers = new Set<(f: HeatField) => void>();
   private raf = 0;
-  ambient = 0; // set by scroll: the vent's contribution near the hero
+  /** The vent: a standing heat source under the hero name, in normalised screen space (y up). */
+  vent = { u: 0.3, v: 0.22, r: 0.16, strength: 0 };
+  ambient = 1; // 1 at the top of the page, 0 once the visitor has descended past the hero
 
   start() {
     if (this.started || typeof window === "undefined") return;
@@ -91,6 +93,27 @@ class HeatField {
     } else {
       this.velocity *= 0.9;
       this.lastX = -1;
+    }
+
+    // The vent breathes under the name while the visitor is at the top of the page.
+    if (this.vent.strength > 0 && this.ambient > 0.01) {
+      const breathe = 0.75 + 0.25 * Math.sin(t / 1400);
+      const s = this.vent.strength * this.ambient * breathe * dt * 2.2;
+      const cx = this.vent.u * (w - 1);
+      const cy = this.vent.v * (h - 1);
+      const rx = this.vent.r * w;
+      const ry = this.vent.r * h * 0.9;
+      const x0 = Math.max(0, Math.floor(cx - rx)), x1 = Math.min(w - 1, Math.ceil(cx + rx));
+      const y0 = Math.max(0, Math.floor(cy - ry)), y1 = Math.min(h - 1, Math.ceil(cy + ry));
+      for (let y = y0; y <= y1; y++) {
+        for (let x = x0; x <= x1; x++) {
+          const dx = (x - cx) / rx, dy = (y - cy) / ry;
+          const d2 = dx * dx + dy * dy;
+          if (d2 > 1) continue;
+          const i = y * w + x;
+          data[i] = Math.min(0.42, data[i] + Math.exp(-d2 * 2.6) * s);
+        }
+      }
     }
 
     // Diffuse and cool.

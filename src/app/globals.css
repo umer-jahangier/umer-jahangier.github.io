@@ -165,11 +165,14 @@ html {
 .slab {
   position: relative;
   border-radius: 2px;
-  background: color-mix(in oklab, var(--basalt) 88%, transparent);
+  /* Cooled rock: the same photoscan as the floor, at low exposure, opaque. */
+  background:
+    linear-gradient(rgb(12 11 16 / 0.84), rgb(12 11 16 / 0.84)),
+    url("/textures/rock-diff.webp") center / 720px repeat;
+  background-color: var(--basalt);
   box-shadow:
     inset 0 0 0 1px color-mix(in oklab, var(--basalt-2), var(--magma) calc(var(--heat) * 70%)),
-    0 24px 60px -30px rgb(0 0 0 / 0.9);
-  backdrop-filter: blur(6px);
+    0 30px 60px -34px rgb(0 0 0 / 0.95);
 }
 .slab::before {
   /* fissure light along the top edge */
@@ -226,12 +229,29 @@ html {
 .btn:active {
   transform: translateY(1px) scale(0.985);
 }
+/* The primary action is already molten; heat makes it radiate rather than half-fill it. */
 .btn-primary {
-  --melt: calc(0.55 + var(--heat) * 0.45);
+  --melt: 1;
   color: var(--obsidian);
+  box-shadow: inset 0 0 0 1px var(--magma-2), 0 0 calc(12px + var(--heat) * 36px) calc(-4px + var(--heat) * 2px) rgb(255 61 31 / calc(0.35 + var(--heat) * 0.4));
 }
 .btn-primary::before {
-  transform: translateY(calc(100% - var(--melt) * 100%));
+  transform: translateY(0);
+}
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--core), 0 0 48px -4px rgb(255 138 61 / 0.7);
+}
+
+/* Long prose sits on a scrim of cooled rock so the glow never runs under the words */
+.ground {
+  background: rgb(8 7 11 / 0.78);
+  padding: clamp(20px, 3vw, 40px);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--basalt-2);
+}
+.portrait {
+  filter: contrast(1.04) saturate(0.82) sepia(0.12);
 }
 
 /* A castings row cools from core to bone as it settles */

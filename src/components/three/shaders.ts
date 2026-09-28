@@ -87,7 +87,10 @@ void main(){
   float ao=texture2D(uRockAo,tuv).r;
   // Large-scale variation kills the tiling read.
   float macro=fbm(base*0.55)*0.5+0.5;
-  albedo=pow(albedo,vec3(0.85))*mix(1.1,1.7,macro);
+  // Cooled black rock: pull the photoscan toward a cool, near-neutral obsidian and let heat be the only warmth.
+  float lumA=dot(albedo,vec3(0.299,0.587,0.114));
+  albedo=mix(vec3(lumA)*vec3(0.86,0.86,1.0), albedo, 0.22);
+  albedo=pow(albedo,vec3(0.9))*mix(0.95,1.45,macro);
 
   // Fissures: the baked-earth cracks (dark in AO) become the magma channels.
   float crackAo=texture2D(uCracks,cuv).r;
@@ -113,21 +116,21 @@ void main(){
   float diffV=max(dot(N,Lv),0.0);
   vec3 V=vec3(0.0,0.0,1.0);
   float specT=pow(max(dot(N,normalize(L+V)),0.0),28.0);
-  vec3 ambient=vec3(0.30,0.28,0.36)*(0.55+0.45*ao);
+  vec3 ambient=vec3(0.24,0.24,0.34)*(0.55+0.45*ao);
   vec3 torchCol=vec3(1.0,0.62,0.36);
   vec3 ventCol=vec3(1.0,0.42,0.18);
-  vec3 col=albedo*(ambient + torchCol*diffT*torch*1.6 + ventCol*diffV*ventLight*1.1);
+  vec3 col=albedo*(ambient + torchCol*diffT*torch*1.3 + ventCol*diffV*ventLight*0.9);
   col+=torchCol*specT*torch*0.35*ao;
 
   // Magma in the fissures: a slow breath, the vent, and heat.
   float breathe=0.5+0.5*sin(uTime*0.55+macro*8.0+uv.y*3.0);
-  float glow=crack*(0.16+0.14*breathe+ventLight*1.0+h*1.35);
+  float glow=crack*(0.14+0.10*breathe+ventLight*0.7+h*0.85);
   // Heat also wakes the sleeping cracks, so the torch reveals veins the seams left dark.
-  glow+=crackAll*(1.0-seam)*h*0.7;
+  glow+=crackAll*(1.0-seam)*h*0.45;
   glow+=vein*(h*0.6+ventLight*0.25)*0.3;
   // Clamp so the hottest seam reaches core once and never blows out under bloom.
   float g=min(glow,1.0);
-  col+=magma(g)*g*1.25;
+  col+=magma(g)*g*1.05;
   // Heat warms the whole face a touch.
   col+=vec3(0.5,0.16,0.05)*h*0.16;
 

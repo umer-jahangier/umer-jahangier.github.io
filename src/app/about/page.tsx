@@ -19,7 +19,7 @@ export default function AboutPage() {
             <HeatHeading as="h1" className="text-[clamp(3rem,10vw,11rem)]" floor={0.25}>
               About
             </HeatHeading>
-            <div className="prose-chamber mt-8">
+            <div className="prose-chamber ground mt-8">
               <p>
                 I am an AI and full-stack software engineer from Lahore. For over two years I have worked remotely for US companies, in US hours, shipping systems that are in production today: <strong>AlphaVenue.ai</strong>, which I engineer alone, <strong>LogicOne Dialer</strong>, where I am the primary engineer, and <strong>RestaurantOS</strong>, where I lead a team of four.
               </p>
@@ -33,7 +33,7 @@ export default function AboutPage() {
           </div>
           <div className="col-span-10 lg:col-span-3 lg:col-start-8">
             <Slab className="p-2 overflow-hidden">
-              <Image src="/images/headshot-1200.jpg" alt="Muhammad Umer" width={1200} height={1200} priority className="block w-full aspect-square object-cover rounded-[2px]" />
+              <Image src="/images/headshot-1200.jpg" alt="Muhammad Umer" width={1200} height={1200} priority className="portrait block w-full aspect-square object-cover rounded-[2px]" />
             </Slab>
             <p className="mt-3 text-xs text-ash-2">{site.location}</p>
           </div>
@@ -50,7 +50,7 @@ export default function AboutPage() {
             </HeatHeading>
             <p className="mt-4 text-ash">{thesis.title}. Team of three, grade A, entirely in simulation.</p>
           </div>
-          <div className="col-span-10 lg:col-span-6 prose-chamber">
+          <div className="col-span-10 lg:col-span-6 prose-chamber ground">
             <p>{thesis.summary}</p>
             <p className="text-ash">
               <strong>My part:</strong> {thesis.mine}

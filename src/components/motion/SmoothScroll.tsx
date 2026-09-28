@@ -4,8 +4,13 @@ import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { scrollState } from "@/components/three/Chamber";
+import { getHeatField } from "@/lib/heat";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const setAmbient = (y: number) => {
+  getHeatField().ambient = Math.max(0, Math.min(1, 1 - (y / Math.max(scrollState.vh, 1)) * 1.4));
+};
 
 let lenis: Lenis | null = null;
 export const getLenis = () => lenis;
@@ -22,6 +27,7 @@ export default function SmoothScroll() {
     if (reduce) {
       const onScroll = () => {
         scrollState.y = window.scrollY;
+        setAmbient(window.scrollY);
       };
       window.addEventListener("scroll", onScroll, { passive: true });
       return () => {
@@ -33,6 +39,7 @@ export default function SmoothScroll() {
     lenis.on("scroll", (e: { scroll: number; progress: number }) => {
       scrollState.y = e.scroll;
       scrollState.progress = e.progress;
+      setAmbient(e.scroll);
       ScrollTrigger.update();
     });
     const tick = (time: number) => lenis?.raf(time * 1000);

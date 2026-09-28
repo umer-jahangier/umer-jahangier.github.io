@@ -17,7 +17,7 @@ function Casting({ p, wide }: { p: Project; wide: boolean }) {
   return (
     <li className={`casting cooling ${wide ? "col-span-10 lg:col-span-6" : "col-span-10 lg:col-span-4"}`} style={{ "--cool": 0 } as React.CSSProperties}>
       <TransitionLink href={`/work/${p.slug}/`} className="group block h-full">
-        <article ref={ref as never} className="slab relative h-full min-h-[360px] lg:min-h-[440px] p-6 md:p-8 flex flex-col overflow-hidden">
+        <article ref={ref as never} className="slab relative h-full p-6 md:p-8 flex flex-col gap-8 overflow-hidden">
           <span className="fissure absolute inset-x-0 top-0 h-px" aria-hidden />
           <header className="flex items-start justify-between gap-6">
             <h3 className="display text-[clamp(2.4rem,5vw,4.6rem)] heat-text leading-[0.86]">{p.name}</h3>
@@ -26,7 +26,7 @@ function Casting({ p, wide }: { p: Project; wide: boolean }) {
             </span>
           </header>
           <p className="mt-4 max-w-[46ch] text-[1.0625rem] leading-[1.5] text-ash">{p.kicker}</p>
-          <div className="mt-auto pt-8 flex flex-wrap items-end gap-x-8 gap-y-4">
+          <div className="mt-auto flex flex-wrap items-end gap-x-8 gap-y-4">
             {p.numbers.slice(0, 3).map((n) => (
               <div key={n.label} className="min-w-[7ch]">
                 <span className="numeral block text-[clamp(2.2rem,4vw,3.6rem)]">{n.value}</span>

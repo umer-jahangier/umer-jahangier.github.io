@@ -67,7 +67,7 @@ export default function Strata() {
             <span className="relative block w-px h-40 bg-basalt-2 overflow-hidden">
               <span className="gauge-fill absolute inset-0 origin-top scale-y-0 bg-gradient-to-b from-core via-magma-2 to-ember" />
             </span>
-            <span className="text-xs uppercase tracking-[0.18em] text-ash-2 self-end">depth</span>
+            <span className="display text-[1rem] tracking-[0.04em] text-ash-2 self-end">Depth</span>
           </div>
         </div>
         <ol className="strata-list col-span-10 lg:col-span-7 border-b border-basalt-2">

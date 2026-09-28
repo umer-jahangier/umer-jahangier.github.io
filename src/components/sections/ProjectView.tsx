@@ -74,9 +74,8 @@ export default function ProjectView({ p, next }: { p: Project; next: Project }) 
 
       <TransitionLink href={`/work/${next.slug}/`} className="group block mt-[14vh] border-t border-basalt-2 pt-8">
         <span ref={nextRef as never} className="heat-text flex items-end justify-between gap-6">
-          <span>
-            <span className="block text-[0.9375rem] text-ash">Next casting</span>
-            <span className="display block text-[clamp(2.4rem,6vw,6rem)] mt-2">{next.name}</span>
+          <span className="display block text-[clamp(2.4rem,6vw,6rem)]">
+            <span className="text-ash">Next:</span> {next.name}
           </span>
           <span className="text-ash transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-core mb-3">
             <IconOut size={32} />

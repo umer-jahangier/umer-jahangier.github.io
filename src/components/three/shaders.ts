@@ -89,7 +89,7 @@ void main(){
   float macro=fbm(base*0.55)*0.5+0.5;
   // Cooled black rock: pull the photoscan toward a cool, near-neutral obsidian and let heat be the only warmth.
   float lumA=dot(albedo,vec3(0.299,0.587,0.114));
-  albedo=mix(vec3(lumA)*vec3(0.86,0.86,1.0), albedo, 0.22);
+  albedo=mix(vec3(lumA)*vec3(0.80,0.82,1.0), albedo, 0.10);
   albedo=pow(albedo,vec3(0.9))*mix(0.95,1.45,macro);
 
   // Fissures: the baked-earth cracks (dark in AO) become the magma channels.
@@ -108,7 +108,7 @@ void main(){
   vec2 pxy=vec2((uPointer.x*0.5+0.5)*aspect, uPointer.y*0.5+0.5);
   vec3 P=vec3(uv.x*aspect, uv.y, 0.0);
   vec3 L=normalize(vec3(pxy,0.55)-P);
-  float torch=(0.35+h*0.9)*smoothstep(1.6,0.0,distance(vec2(uv.x*aspect,uv.y),pxy));
+  float torch=(0.06+h*0.95)*smoothstep(1.3,0.0,distance(vec2(uv.x*aspect,uv.y),pxy));
   vec3 Lv=normalize(vec3(0.5*aspect,-0.35,0.45)-P);
   float ventLight=uVent*smoothstep(1.25,0.1,distance(vec2(uv.x*aspect,uv.y),vec2(0.5*aspect,-0.1)));
   vec3 N=normalize(vec3(nrm.xy*1.4,nrm.z));
@@ -116,7 +116,7 @@ void main(){
   float diffV=max(dot(N,Lv),0.0);
   vec3 V=vec3(0.0,0.0,1.0);
   float specT=pow(max(dot(N,normalize(L+V)),0.0),28.0);
-  vec3 ambient=vec3(0.24,0.24,0.34)*(0.55+0.45*ao);
+  vec3 ambient=vec3(0.22,0.23,0.34)*(0.55+0.45*ao);
   vec3 torchCol=vec3(1.0,0.62,0.36);
   vec3 ventCol=vec3(1.0,0.42,0.18);
   vec3 col=albedo*(ambient + torchCol*diffT*torch*1.3 + ventCol*diffV*ventLight*0.9);
@@ -132,7 +132,7 @@ void main(){
   float g=min(glow,1.0);
   col+=magma(g)*g*1.05;
   // Heat warms the whole face a touch.
-  col+=vec3(0.5,0.16,0.05)*h*0.16;
+  col+=vec3(0.5,0.16,0.05)*h*h*0.2;
 
   // Deeper is darker.
   float vig=smoothstep(1.4,0.35,distance(uv,vec2(0.5,0.45)));

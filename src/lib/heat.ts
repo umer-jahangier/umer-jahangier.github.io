@@ -98,7 +98,7 @@ class HeatField {
     // The vent breathes under the name while the visitor is at the top of the page.
     if (this.vent.strength > 0 && this.ambient > 0.01) {
       const breathe = 0.75 + 0.25 * Math.sin(t / 1400);
-      const s = this.vent.strength * this.ambient * breathe * dt * 2.2;
+      const s = this.vent.strength * this.ambient * breathe * dt * 3.2;
       const cx = this.vent.u * (w - 1);
       const cy = this.vent.v * (h - 1);
       const rx = this.vent.r * w;
@@ -111,7 +111,7 @@ class HeatField {
           const d2 = dx * dx + dy * dy;
           if (d2 > 1) continue;
           const i = y * w + x;
-          data[i] = Math.min(0.42, data[i] + Math.exp(-d2 * 2.6) * s);
+          data[i] = Math.min(0.55, data[i] + Math.exp(-d2 * 2.2) * s);
         }
       }
     }

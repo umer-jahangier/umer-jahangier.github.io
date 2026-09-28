@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Big_Shoulders } from "next/font/google";
 import "./globals.css";
-import Chamber from "@/components/three/Chamber";
+import Chamber from "@/components/three/ChamberLoader";
 import SmoothScroll from "@/components/motion/SmoothScroll";
 import HeatCursor from "@/components/motion/HeatCursor";
 import { TransitionProvider } from "@/components/motion/Transition";

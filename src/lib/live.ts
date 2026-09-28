@@ -161,6 +161,19 @@ export async function publishWall(s: Omit<LiveStroke, "id">) {
   }
 }
 
+/** Undo: a wall stroke may be removed within a minute of being drawn (the rules enforce the window). */
+export async function removeWall(id: string) {
+  const d = await db();
+  if (!d) return false;
+  try {
+    const { ref, remove } = await import("firebase/database");
+    await remove(ref(d, `wall/${id}`));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function subscribeWall(onAdd: (s: LiveStroke) => void, onRemove: (id: string) => void) {
   const d = await db();
   if (!d) return () => {};

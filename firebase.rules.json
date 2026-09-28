@@ -11,7 +11,7 @@
     "wall": {
       ".read": true,
       "$id": {
-        ".write": "!data.exists() || (newData.val() == null && data.child('t').val() < now - 86400000)",
+        ".write": "!data.exists() || (newData.val() == null && (data.child('t').val() < now - 86400000 || data.child('t').val() > now - 60000))",
         ".validate": "newData.hasChildren(['t', 'c', 'p']) && newData.child('t').isNumber() && newData.child('t').val() < now + 10000 && newData.child('t').val() > now - 600000 && newData.child('c').isString() && newData.child('c').val().length < 40",
         "p": { "$i": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1 && $i.matches(/^[0-9]{1,3}$/)" } }
       }

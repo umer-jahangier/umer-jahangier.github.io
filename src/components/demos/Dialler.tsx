@@ -2,92 +2,126 @@
 import { useEffect, useRef, useState } from "react";
 import { useInView } from "./useInView";
 
-type Line = { id: number; num: string; state: "dialling" | "ringing" | "connected" | "voicemail" | "no answer" | "ended"; hint?: string; bars: number[] };
-const HINTS = ["Ask about their current process", "Mention the free trial", "Confirm the decision maker", "Offer a demo this week", "Summarise next steps"];
+type State = "idle" | "dialling" | "ringing" | "connected" | "voicemail" | "no answer";
+type Slot = { num: string; state: State; until: number; hint: string; bars: number[]; started: number };
 
-/** Simulation of a predictive dialler: several lines dial ahead so a rep is always on a live call. Numbers are masked and invented. */
+const HINTS = ["Ask about their current process", "Mention the free trial", "Confirm the decision maker", "Offer a demo this week", "Summarise the next steps", "Ask what they tried before"];
+const mask = () => `+1 (${200 + Math.floor(Math.random() * 700)}) ··· ${String(1000 + Math.floor(Math.random() * 9000)).slice(0, 4)}`;
+const blank = (): Slot => ({ num: mask(), state: "idle", until: 0, hint: "", bars: [], started: 0 });
+
+/**
+ * A predictive dialler keeps four lines busy so a rep is always on a live call.
+ * Four fixed slots cycle through dialling, ringing and an outcome; connected
+ * calls show the live coaching hint. A simulation with invented numbers.
+ */
 export default function Dialler() {
-  const [lines, setLines] = useState<Line[]>([]);
-  const [stats, setStats] = useState({ dials: 0, connects: 0 });
+  const [slots, setSlots] = useState<Slot[]>(() => Array.from({ length: 4 }, blank));
+  const [stats, setStats] = useState({ dials: 0, connects: 0, seconds: 0 });
   const { ref, inView } = useInView<HTMLDivElement>();
-  const idRef = useRef(1);
+  const hintIdx = useRef(0);
+  const ended = useRef(0);
 
   useEffect(() => {
     if (!inView) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const mask = () => `+1 (${200 + Math.floor(Math.random() * 700)}) ··· ${String(1000 + Math.floor(Math.random() * 9000)).slice(0, 4)}`;
     if (reduce) {
-      setLines([
-        { id: 1, num: mask(), state: "connected", hint: HINTS[0], bars: [4, 8, 6, 10, 5, 7] },
-        { id: 2, num: mask(), state: "ringing", bars: [] },
-        { id: 3, num: mask(), state: "dialling", bars: [] },
+      setSlots([
+        { ...blank(), state: "connected", hint: HINTS[0], bars: [4, 8, 6, 10, 5, 7, 9, 4, 6, 8, 5, 7] },
+        { ...blank(), state: "ringing" },
+        { ...blank(), state: "dialling" },
+        { ...blank(), state: "voicemail" },
       ]);
-      setStats({ dials: 3, connects: 1 });
+      setStats({ dials: 4, connects: 1, seconds: 42 });
       return;
     }
-    let alive = true;
-    const spawn = () => {
-      if (!alive) return;
-      const id = idRef.current++;
-      setLines((l) => [...l.slice(-4), { id, num: mask(), state: "dialling", bars: [] }]);
-      setStats((s) => ({ ...s, dials: s.dials + 1 }));
-      const set = (patch: Partial<Line>) => setLines((l) => l.map((x) => (x.id === id ? { ...x, ...patch } : x)));
-      window.setTimeout(() => set({ state: "ringing" }), 700);
-      const r = Math.random();
-      if (r < 0.5) {
-        window.setTimeout(() => {
-          set({ state: "connected", hint: HINTS[Math.floor(Math.random() * HINTS.length)] });
-          setStats((s) => ({ ...s, connects: s.connects + 1 }));
-        }, 2000);
-        window.setTimeout(() => set({ state: "ended" }), 6500 + Math.random() * 2000);
-      } else if (r < 0.75) window.setTimeout(() => set({ state: "voicemail" }), 2400);
-      else window.setTimeout(() => set({ state: "no answer" }), 3200);
-      window.setTimeout(spawn, 1400 + Math.random() * 1200);
+    let list: Slot[] = Array.from({ length: 4 }, (_, i) => ({ ...blank(), until: performance.now() + 300 + i * 900 }));
+    let last = 0;
+    let raf = 0;
+    const loop = (t: number) => {
+      if (t - last < 80) {
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+      last = t;
+      list = list.map((s) => {
+        if (t < s.until) {
+          if (s.state === "connected") s.bars = Array.from({ length: 12 }, () => 2 + Math.random() * 12);
+          return s;
+        }
+        switch (s.state) {
+          case "idle":
+            setStats((k) => ({ ...k, dials: k.dials + 1 }));
+            return { ...s, num: mask(), state: "dialling", until: t + 700 + Math.random() * 400, hint: "", bars: [] };
+          case "dialling":
+            return { ...s, state: "ringing", until: t + 1200 + Math.random() * 1400 };
+          case "ringing": {
+            const r = Math.random();
+            if (r < 0.5) {
+              setStats((k) => ({ ...k, connects: k.connects + 1 }));
+              return { ...s, state: "connected", hint: HINTS[hintIdx.current++ % HINTS.length], until: t + 5000 + Math.random() * 3000, started: t };
+            }
+            return { ...s, state: r < 0.78 ? "voicemail" : "no answer", until: t + 1400 };
+          }
+          case "connected":
+            ended.current += (t - s.started) / 1000;
+            return { ...s, state: "idle", until: t + 500, bars: [] };
+          default:
+            return { ...s, state: "idle", until: t + 400 };
+        }
+      });
+      const talking = list.filter((s) => s.state === "connected").reduce((a, s) => a + (t - s.started) / 1000, 0);
+      setStats((k) => ({ ...k, seconds: Math.round(ended.current + talking) }));
+      setSlots(list.map((s) => ({ ...s })));
+      raf = requestAnimationFrame(loop);
     };
-    spawn();
-    const wave = window.setInterval(() => {
-      setLines((l) => l.map((x) => (x.state === "connected" ? { ...x, bars: Array.from({ length: 14 }, () => 2 + Math.random() * 12) } : x)));
-    }, 140);
-    return () => {
-      alive = false;
-      window.clearInterval(wave);
-    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
   }, [inView]);
 
   const rate = stats.dials ? Math.round((stats.connects / stats.dials) * 100) : 0;
+  const label = (s: State) => ({ idle: "next number", dialling: "dialling", ringing: "ringing", connected: "live", voicemail: "voicemail", "no answer": "no answer" })[s];
+
   return (
-    <div ref={ref} className="panel p-5 md:p-6" data-no-draw aria-label="Simulation of a predictive dialler">
-      <div className="flex items-baseline justify-between gap-4 mb-4">
-        <span className="hand text-[1.15rem]">The dialler, simulated</span>
-        <span className="mono text-xs text-ink-3">numbers invented</span>
+    <div ref={ref} className="panel p-4 md:p-5" data-no-draw aria-label="Simulation of a predictive dialler">
+      <div className="flex items-baseline justify-between gap-4 mb-3">
+        <span className="hand text-[1.15rem]">Four lines, one rep always on a live call</span>
+        <span className="mono text-xs text-ink-3">simulation · numbers invented</span>
       </div>
-      <ul className="grid gap-2.5 min-h-[228px]">
-        {lines.map((l) => (
-          <li key={l.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 text-[0.9375rem]" style={{ opacity: l.state === "ended" || l.state === "voicemail" || l.state === "no answer" ? 0.45 : 1, transition: "opacity 400ms" }}>
-            <span className="mono text-sm">{l.num}</span>
-            <span className="flex items-center gap-2 min-w-0">
-              {l.state === "connected" ? (
+      <ol className="grid grid-cols-2 gap-2.5">
+        {slots.map((s, i) => {
+          const on = s.state === "connected";
+          const off = s.state === "idle" || s.state === "voicemail" || s.state === "no answer";
+          return (
+            <li key={i} className="rounded-[8px] p-3 min-h-[92px] flex flex-col gap-1.5" style={{ boxShadow: `inset 0 0 0 1.5px ${on ? "var(--marker)" : "var(--line)"}`, background: on ? "var(--marker-soft)" : "transparent", transition: "box-shadow 300ms, background-color 300ms", opacity: off ? 0.55 : 1 }}>
+              <div className="flex items-center justify-between gap-2">
+                <span className="mono text-[0.8125rem]">{s.num}</span>
+                <span className={`mono text-[0.6875rem] uppercase tracking-[0.06em] ${on ? "text-marker" : s.state === "ringing" || s.state === "dialling" ? "text-ink" : "text-ink-3"}`}>{label(s.state)}</span>
+              </div>
+              {on ? (
                 <>
-                  <span className="flex items-end gap-[2px] h-4" aria-hidden>
-                    {l.bars.map((b, i) => (
-                      <span key={i} className="w-[3px] rounded-sm bg-marker" style={{ height: `${b}px` }} />
+                  <span className="flex items-end gap-[3px] h-4" aria-hidden>
+                    {s.bars.map((b, k) => (
+                      <span key={k} className="w-[3px] rounded-sm bg-marker" style={{ height: `${b}px`, transition: "height 80ms linear" }} />
                     ))}
                   </span>
-                  <span className="hand text-[0.95rem] truncate">{l.hint}</span>
+                  <span className="hand text-[0.95rem] leading-tight">{s.hint}</span>
                 </>
               ) : (
-                <span className="text-ink-2 text-sm">{l.state}</span>
+                <span className="flex items-end gap-[3px] h-4" aria-hidden>
+                  {Array.from({ length: 12 }, (_, k) => (
+                    <span key={k} className="w-[3px] rounded-sm" style={{ height: "2px", background: "var(--line)" }} />
+                  ))}
+                </span>
               )}
-            </span>
-            <span className={`mono text-xs ${l.state === "connected" ? "text-marker" : "text-ink-3"}`}>{l.state === "connected" ? "live" : ""}</span>
-          </li>
-        ))}
-      </ul>
+            </li>
+          );
+        })}
+      </ol>
       <div className="hairline my-4" />
-      <div className="flex gap-8">
+      <div className="flex flex-wrap gap-x-8 gap-y-3">
         <div>
           <span className="numeral text-3xl block">{stats.dials}</span>
-          <span className="text-xs text-ink-2">dials</span>
+          <span className="text-xs text-ink-2">dials placed</span>
         </div>
         <div>
           <span className="numeral text-3xl block">{stats.connects}</span>
@@ -96,6 +130,10 @@ export default function Dialler() {
         <div>
           <span className="numeral text-3xl block">{rate}%</span>
           <span className="text-xs text-ink-2">connect rate</span>
+        </div>
+        <div>
+          <span className="numeral text-3xl block">{Math.floor(stats.seconds / 60)}:{String(stats.seconds % 60).padStart(2, "0")}</span>
+          <span className="text-xs text-ink-2">talk time</span>
         </div>
       </div>
     </div>

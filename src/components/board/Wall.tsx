@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { liveReady, publishWall, subscribeWall, WALL_TTL, type LiveStroke } from "@/lib/live";
+import { liveReady, publishWall, removeWall, subscribeWall, WALL_TTL, type LiveStroke } from "@/lib/live";
 import { markerColor, subscribePrefs } from "@/lib/prefs";
 import { sound } from "@/lib/sound";
 
@@ -9,6 +9,7 @@ type Stroke = { id: string; pts: Pt[]; color: string; t: number };
 
 const MAX_POINTS = 400;
 const MIN_GAP_MS = 350; // between published strokes from one visitor
+const UNDO_WINDOW = 60_000; // a stroke can be taken back for a minute
 
 /**
  * The open board: a fixed-proportion wall everyone draws on. Strokes are stored
@@ -20,6 +21,7 @@ export default function Wall() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [live, setLive] = useState<boolean | null>(null);
   const [count, setCount] = useState(0);
+  const [notice, setNotice] = useState<string>("");
 
   useEffect(() => {
     const cv = canvas.current;
@@ -30,6 +32,7 @@ export default function Wall() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const strokes = new Map<string, Stroke>();
+    const mine: { id: string; t: number }[] = []; // my saved strokes, newest last
     let drawing: Stroke | null = null;
     let color = markerColor();
     let lastPublish = 0;
@@ -83,14 +86,49 @@ export default function Wall() {
         if (id) {
           strokes.delete(s.id);
           strokes.set(id, { ...s, id });
-          dirty = true;
+          mine.push({ id, t: s.t });
+          setNotice("");
+        } else {
+          setNotice("The shared board refused that drawing, so it stays only on your screen.");
         }
+        dirty = true;
       });
     };
     cv.addEventListener("pointerdown", onDown);
     cv.addEventListener("pointermove", onMove);
     cv.addEventListener("pointerup", onUp);
     cv.addEventListener("pointercancel", onUp);
+
+    // The toolbar's eraser: take back my most recent stroke while the undo window is open.
+    const undo = () => {
+      // Unsaved local strokes go first.
+      let removedLocal = false;
+      strokes.forEach((s, id) => {
+        if (id.startsWith("local-")) {
+          strokes.delete(id);
+          removedLocal = true;
+        }
+      });
+      if (removedLocal) dirty = true;
+      const recent = mine.filter((m) => Date.now() - m.t < UNDO_WINDOW);
+      const last = recent[recent.length - 1];
+      if (!last) {
+        setNotice(removedLocal ? "" : mine.length ? "Your strokes older than a minute stay on the board for the day." : "Nothing of yours to erase yet.");
+        return;
+      }
+      void removeWall(last.id).then((ok) => {
+        if (ok) {
+          strokes.delete(last.id);
+          mine.splice(mine.indexOf(last), 1);
+          setCount(strokes.size);
+          setNotice("Erased your last stroke.");
+        } else {
+          setNotice("The board would not let that stroke go; strokes older than a minute stay for the day.");
+        }
+        dirty = true;
+      });
+    };
+    window.addEventListener("board:clear", undo);
 
     let unsubLive: (() => void) | undefined;
     liveReady().then(async (ok) => {
@@ -158,6 +196,7 @@ export default function Wall() {
       cv.removeEventListener("pointermove", onMove);
       cv.removeEventListener("pointerup", onUp);
       cv.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("board:clear", undo);
     };
   }, []);
 
@@ -167,9 +206,10 @@ export default function Wall() {
         <canvas ref={canvas} className="absolute inset-0 w-full h-full cursor-crosshair" aria-label="The open board. Draw with the mouse or a finger; drawings stay for 24 hours and everyone sees them." role="img" />
       </div>
       <p className="mt-3 text-sm text-ink-2" role="status" aria-live="polite">
-        {live === null && "Connecting to the board…"}
-        {live === true && (count ? `${count} drawing${count === 1 ? "" : "s"} on the board right now. Each one stays 24 hours.` : "The board is empty. Draw something; it stays 24 hours and everyone sees it.")}
-        {live === false && "The shared board is not reachable right now; what you draw here stays on your screen."}
+        {notice ||
+          (live === null && "Connecting to the board…") ||
+          (live === true && (count ? `${count} drawing${count === 1 ? "" : "s"} on the board right now. Each one stays 24 hours; the eraser in the toolbar takes back your last stroke for a minute.` : "The board is empty. Draw something; it stays 24 hours and everyone sees it. The eraser in the toolbar takes back your last stroke for a minute.")) ||
+          (live === false && "The shared board is not reachable right now; what you draw here stays on your screen.")}
       </p>
     </div>
   );

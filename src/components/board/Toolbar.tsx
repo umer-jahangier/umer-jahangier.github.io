@@ -74,8 +74,8 @@ export default function Toolbar() {
       <button
         type="button"
         className="tool"
-        aria-label="Clear your drawings"
-        title="Clear your drawings"
+        aria-label="Eraser: clear your drawings, or take back your last stroke on the open board"
+        title="Eraser"
         onClick={() => {
           window.dispatchEvent(new Event("board:clear"));
           sound.swoosh();

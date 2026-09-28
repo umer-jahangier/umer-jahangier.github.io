@@ -7,6 +7,7 @@ const ToolApproval = dynamic(() => import("./ToolApproval"), { ssr: false });
 const Dialler = dynamic(() => import("./Dialler"), { ssr: false });
 const ServiceMap = dynamic(() => import("./ServiceMap"), { ssr: false });
 const DroneSim = dynamic(() => import("./DroneSim"), { ssr: false });
+const Marketplace = dynamic(() => import("./Marketplace"), { ssr: false });
 
 /** The right-hand graphic for a project: its live demo where one exists, otherwise its drawn system. */
 export default function Demo({ p }: { p: Project }) {
@@ -19,6 +20,8 @@ export default function Demo({ p }: { p: Project }) {
       return <ServiceMap />;
     case "drone":
       return <DroneSim />;
+    case "marketplace":
+      return <Marketplace />;
     default:
       return (
         <div className="panel p-4 md:p-5" data-no-draw>

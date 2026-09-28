@@ -105,7 +105,7 @@ void main(){
   vec2 pxy=vec2((uPointer.x*0.5+0.5)*aspect, uPointer.y*0.5+0.5);
   vec3 P=vec3(uv.x*aspect, uv.y, 0.0);
   vec3 L=normalize(vec3(pxy,0.55)-P);
-  float torch=(0.35+h*1.4)*smoothstep(1.6,0.0,distance(vec2(uv.x*aspect,uv.y),pxy));
+  float torch=(0.35+h*0.9)*smoothstep(1.6,0.0,distance(vec2(uv.x*aspect,uv.y),pxy));
   vec3 Lv=normalize(vec3(0.5*aspect,-0.35,0.45)-P);
   float ventLight=uVent*smoothstep(1.25,0.1,distance(vec2(uv.x*aspect,uv.y),vec2(0.5*aspect,-0.1)));
   vec3 N=normalize(vec3(nrm.xy*1.4,nrm.z));
@@ -121,13 +121,15 @@ void main(){
 
   // Magma in the fissures: a slow breath, the vent, and heat.
   float breathe=0.5+0.5*sin(uTime*0.55+macro*8.0+uv.y*3.0);
-  float glow=crack*(0.16+0.14*breathe+ventLight*1.1+h*2.4);
+  float glow=crack*(0.16+0.14*breathe+ventLight*1.0+h*1.35);
   // Heat also wakes the sleeping cracks, so the torch reveals veins the seams left dark.
-  glow+=crackAll*(1.0-seam)*h*1.1;
-  glow+=vein*(h*0.9+ventLight*0.25)*0.35;
-  col+=magma(glow)*glow*1.5;
+  glow+=crackAll*(1.0-seam)*h*0.7;
+  glow+=vein*(h*0.6+ventLight*0.25)*0.3;
+  // Clamp so the hottest seam reaches core once and never blows out under bloom.
+  float g=min(glow,1.0);
+  col+=magma(g)*g*1.25;
   // Heat warms the whole face a touch.
-  col+=vec3(0.5,0.16,0.05)*h*0.22;
+  col+=vec3(0.5,0.16,0.05)*h*0.16;
 
   // Deeper is darker.
   float vig=smoothstep(1.4,0.35,distance(uv,vec2(0.5,0.45)));

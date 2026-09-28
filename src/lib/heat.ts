@@ -85,7 +85,7 @@ class HeatField {
           if (d2 > 1) continue;
           const g = Math.exp(-d2 * 3.2);
           const i = y * w + x;
-          data[i] = Math.min(1.35, data[i] + g * strength);
+          data[i] = Math.min(1.0, data[i] + g * strength);
         }
       }
     } else {
